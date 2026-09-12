@@ -18,7 +18,11 @@ const translations = {
     navSignUp: "Sign Up / Verify ID 🛡️",
 
     // Greeting & Hero
-    greeting: "Good Morning, Umesh 👋",
+    greeting: "Good Evening, Umesh 👋",
+    greetingMorning: "Good Morning",
+    greetingAfternoon: "Good Afternoon",
+    greetingEvening: "Good Evening",
+    greetingNight: "Good Evening",
     greetingSub: "Where are you travelling today?",
     heroTitle: "Intercity Carpooling Made Smart, Sustainable & Community-Powered",
     heroDesc: "Connect with verified vehicle owners travelling your route, split travel costs, reduce road congestion, and prioritize Electric Vehicles for a greener India.",
@@ -459,7 +463,11 @@ const translations = {
     navSignUp: "साइन अप / पहचान सत्यापन 🛡️",
 
     // Greeting & Hero
-    greeting: "शुभ प्रभात, उमेश 👋",
+    greeting: "शुभ संध्या, उमेश 👋",
+    greetingMorning: "शुभ प्रभात",
+    greetingAfternoon: "शुभ दोपहर",
+    greetingEvening: "शुभ संध्या",
+    greetingNight: "शुभ संध्या",
     greetingSub: "आज आप कहाँ यात्रा कर रहे हैं?",
     heroTitle: "स्मार्ट, पर्यावरण-अनुकूल और समुदाय-आधारित इंटरसिटी कारपूलिंग",
     heroDesc: "अपने मार्ग पर जाने वाले सत्यापित वाहन मालिकों से जुड़ें, यात्रा खर्च साझा करें, प्रदूषण घटाएं और इलेक्ट्रिक वाहनों (EV) को प्राथमिकता दें।",
@@ -898,7 +906,11 @@ const translations = {
     navSignUp: "साइन अप / ओळख पडताळणी 🛡️",
 
     // Greeting & Hero
-    greeting: "शुभ प्रभात, उमेश 👋",
+    greeting: "शुभ संध्याकाळ, उमेश 👋",
+    greetingMorning: "शुभ प्रभात",
+    greetingAfternoon: "शुभ दुपार",
+    greetingEvening: "शुभ संध्याकाळ",
+    greetingNight: "शुभ संध्याकाळ",
     greetingSub: "आज तुमचा प्रवास कुठे आहे?",
     heroTitle: "स्मार्ट, पर्यावरणपूरक आणि समुदाय-आधारित आंतरशहर कारपूलिंग",
     heroDesc: "तुमच्याच मार्गावर प्रवास करणाऱ्या पडताळणीकृत वाहन मालकांशी जोडा, प्रवास खर्च वाटा, प्रदूषण कमी करा आणि इलेक्ट्रिक वाहनांना (EV) प्राधान्य द्या.",
@@ -2025,6 +2037,8 @@ class SaarthiApp {
     this.initYouTubeNavigation();
     this.initFloatingAi();
     this.applyLanguage(this.currentLang);
+    this.updateTimedGreeting();
+    setInterval(() => this.updateTimedGreeting(), 60000);
     this.renderRides();
     this.renderMyTrips();
     this.renderImpactStats();
@@ -2189,6 +2203,7 @@ class SaarthiApp {
       const profileMenu = document.getElementById('profileDropdownMenu');
       if (profileMenu) profileMenu.classList.add('hidden');
     }
+    this.updateTimedGreeting();
   }
 
   bindAuthEvents() {
@@ -3522,6 +3537,40 @@ class SaarthiApp {
     return langObj[key] || translations.en[key] || key;
   }
 
+  // Dynamic time-of-day greeting generator (Morning, Afternoon, Evening, Night)
+  getTimedGreeting() {
+    const hour = new Date().getHours();
+    let timeKey = 'greetingMorning';
+    if (hour >= 12 && hour < 17) {
+      timeKey = 'greetingAfternoon';
+    } else if (hour >= 17 && hour < 22) {
+      timeKey = 'greetingEvening';
+    } else if (hour >= 22 || hour < 5) {
+      timeKey = 'greetingNight';
+    }
+
+    const greetingPrefix = this.t(timeKey);
+    let firstName = "Umesh";
+    if (this.currentUser && this.currentUser.name) {
+      firstName = this.currentUser.name.trim().split(' ')[0];
+    } else if (!AuthService.isAuthenticated()) {
+      firstName = this.currentLang === 'hi' || this.currentLang === 'mr' ? "यात्री" : "Traveler";
+    }
+
+    if ((this.currentLang === 'hi' || this.currentLang === 'mr') && firstName.toLowerCase() === 'umesh') {
+      firstName = 'उमेश';
+    }
+
+    return `${greetingPrefix}, ${firstName} 👋`;
+  }
+
+  updateTimedGreeting() {
+    const greetingEl = document.getElementById('dashboardGreeting') || document.querySelector('[data-i18n="greeting"]');
+    if (greetingEl) {
+      greetingEl.textContent = this.getTimedGreeting();
+    }
+  }
+
   // Change current language and update entire UI
   changeLanguage(lang) {
     if (!translations[lang]) return;
@@ -3567,6 +3616,8 @@ class SaarthiApp {
         el.textContent = dict[key];
       }
     });
+
+    this.updateTimedGreeting();
 
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
       const key = el.getAttribute('data-i18n-placeholder');

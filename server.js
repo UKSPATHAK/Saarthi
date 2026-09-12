@@ -29,6 +29,11 @@ app.use(express.json());
 // Serve static frontend files so opening http://localhost:3000 works out-of-the-box
 app.use(express.static(path.join(__dirname)));
 
+// Explicit root route handler to guarantee index.html is always returned
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // In-memory active trip state registry (cleared on trip completion for privacy)
 const activeTrips = new Map();
 
@@ -289,10 +294,24 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`\n========================================================`);
-  console.log(`  🚗🌱 SAARTHI REAL-TIME TRACKING SERVER RUNNING`);
-  console.log(`  Port: http://localhost:${PORT}`);
-  console.log(`  Mode: WebSocket (Socket.IO) + REST + Static Server`);
-  console.log(`========================================================\n`);
+// Fallback SPA route for client-side navigation (ignoring API & socket paths)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+// Only start listening if executed directly (e.g. `node server.js`), not when imported as serverless module
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`\n========================================================`);
+    console.log(`  🚗🌱 SAARTHI REAL-TIME TRACKING SERVER RUNNING`);
+    console.log(`  Port: http://localhost:${PORT}`);
+    console.log(`  Mode: WebSocket (Socket.IO) + REST + Static Server`);
+    console.log(`========================================================\n`);
+  });
+}
+
+module.exports = app;
+

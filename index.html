@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>SAARTHI 🚗🌱 - Share the Ride. Share the Journey | India Intercity Carpooling</title>
+  <meta name="description" content="Saarthi is India's community-based intercity carpooling platform. Connect with verified drivers, share fuel costs, reduce traffic, and prioritize Electric Vehicles (EV) for sustainable travel." />
+  <meta name="theme-color" id="metaThemeColor" content="#FFFFFF" />
+
+  <!-- App Favicon & Touch Icon -->
+  <link rel="icon" type="image/jpeg" href="assets/logo/saarthi-icon.jpg?v=2" />
+  <link rel="apple-touch-icon" href="assets/logo/saarthi-icon.jpg?v=2" />
+
+  <!-- Google Fonts: Poppins (Unified Latin + Devanagari), Noto Sans Devanagari, Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#F0FDF4',
+              100: '#DCFCE7',
+              200: '#BBF7D0',
+              500: '#22C55E',
+              600: '#16A34A',
+              700: '#15803D',
+              800: '#166534',
+              900: '#14532D',
+              dark: '#17221B',
+              muted: '#66736B',
+              bg: '#F7F9F7',
+              border: '#E3EAE5'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', '"Plus Jakarta Sans"', '"Noto Sans Devanagari"', 'Inter', 'system-ui', 'sans-serif'],
+            body: ['Poppins', 'Inter', '"Noto Sans Devanagari"', 'sans-serif'],
+            devanagari: ['"Noto Sans Devanagari"', 'Poppins', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Leaflet.js + OpenStreetMap Map Engine -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Socket.IO Real-time WebSocket Client -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+  <!-- Custom CSS for EV Glow, Animations & Overlays -->
+  <link rel="stylesheet" href="style.css?v=2" />
+</head>
+<body class="bg-[#F7F9F7] text-[#17221B] antialiased min-h-screen pb-20 md:pb-0">
+
+  <!-- =========================================================================
+       1. FIXED TOP HEADER (YouTube-Inspired Architecture)
+       ========================================================================= -->
+  <header id="mainHeader" class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 h-16 transition-all">
+    <div class="w-full px-3 sm:px-5 lg:px-6 h-full flex items-center justify-between gap-2 sm:gap-4">
+      
+      <!-- Left: Hamburger Toggle & SAARTHI Logo -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <button id="sidebarToggleBtn" class="p-2 rounded-xl text-gray-700 hover:text-green-700 hover:bg-green-50 transition focus:outline-none focus:ring-2 focus:ring-green-500/20 active:scale-95" title="Toggle Navigation Menu (☰)" aria-label="Toggle Navigation">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+
+        <a href="#dashboardSection" data-nav-target="dashboardSection" class="flex items-center gap-2 group">
+          <img src="assets/logo/saarthi-icon.jpg" alt="SAARTHI App Icon" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover shadow-sm border border-green-200 transition transform group-hover:scale-105" />
+          <div class="flex flex-col text-left">
+            <div class="flex items-center gap-1">
+              <span class="font-black text-lg sm:text-xl text-[#17221B] leading-none tracking-tight">SAARTHI</span>
+              <span class="text-xs">🚗🌱</span>
+            </div>
+            <span class="hidden md:block text-[8.5px] font-bold text-[#66736B] tracking-wider uppercase mt-0.5" data-i18n="brandTagline">Share the ride · Share the journey</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center: Global Ride / Route Search Bar -->
+      <div class="flex-1 max-w-lg hidden md:block mx-2">
+        <form id="globalSearchForm" class="relative flex items-center">
+          <span class="absolute left-3.5 text-gray-400 text-sm">🔍</span>
+          <input type="text" id="globalSearchBar" placeholder="Search routes, cities, or rides (e.g. Pune to Mumbai)..." class="w-full pl-9 pr-8 py-2 bg-gray-50 hover:bg-gray-100/80 focus:bg-white border border-gray-200 focus:border-green-500 rounded-full text-xs font-semibold text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500/20 transition outline-none shadow-xs" autocomplete="off" />
+          <button type="button" id="btnClearGlobalSearch" class="hidden absolute right-3 text-gray-400 hover:text-gray-600 text-xs font-bold">✕</button>
+        </form>
+      </div>
+
+      <!-- Right: Multilingual Selector, Live Tracking, Notifications & Profile Chip -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        
+        <!-- Live Tracking Indicator Button -->
+        <button id="navLiveTrackingBtn" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-green-50 hover:bg-green-100 text-green-800 font-bold text-xs border border-green-200 shadow-xs transition" title="Track Live Ride">
+          <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
+          <span data-i18n="navLiveTracking">Live Tracking 📍</span>
+        </button>
+
+        <!-- Multilingual Selector Dropdown -->
+        <div class="relative">
+          <button id="langDropdownBtn" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xl shadow-xs transition" title="Change Language">
+            <span class="text-sm">🌐</span>
+            <span id="currentLangLabel" class="hidden sm:inline">English</span>
+            <span class="text-gray-400 text-[9px]">▼</span>
+          </button>
+          <div id="langDropdownMenu" class="hidden absolute right-0 mt-2 w-36 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
+            <button class="lang-option w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-green-50 hover:text-green-700 flex items-center justify-between" data-lang="en">
+              <span>English</span>
+              <span class="text-[10px] text-gray-400">EN</span>
+            </button>
+            <button class="lang-option w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-green-50 hover:text-green-700 flex items-center justify-between" data-lang="hi">
+              <span>हिन्दी</span>
+              <span class="text-[10px] text-gray-400">HI</span>
+            </button>
+            <button class="lang-option w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-green-50 hover:text-green-700 flex items-center justify-between" data-lang="mr">
+              <span>मराठी</span>
+              <span class="text-[10px] text-gray-400">MR</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Theme Toggle in Top Header -->
+        <button id="headerThemeToggleBtn" class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xl shadow-xs transition cursor-pointer" title="Toggle Light / Dark Theme" aria-label="Toggle Light and Dark Mode">
+          <span id="headerThemeIcon" class="text-sm">☀️</span>
+        </button>
+
+        <!-- Notification Bell -->
+        <div class="relative">
+          <button id="notifBtn" class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-600 hover:text-green-700 bg-white hover:bg-green-50 border border-gray-200 hover:border-green-300 rounded-xl transition relative shadow-xs" title="Notifications">
+            <span class="text-base">🔔</span>
+            <span id="notifUnreadBadge" class="absolute top-1.5 right-1.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-green-600 rounded-full ring-2 ring-white"></span>
+          </button>
+          
+          <!-- Notification Dropdown Menu -->
+          <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-gray-100 py-3 px-4 z-50">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-500" data-i18n="notifTitle">Notifications</span>
+              <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">3 New</span>
+            </div>
+            <div class="space-y-2 text-xs">
+              <div class="p-2.5 bg-green-50/60 rounded-xl border border-green-100">
+                <p class="font-bold text-green-900" data-i18n="notif1Title">⚡ New EV ride available</p>
+                <p class="text-gray-600 mt-0.5" data-i18n="notif1Body">Aditya Sharma posted a Pune → Mumbai ride in a Tata Nexon EV.</p>
+              </div>
+              <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                <p class="font-bold text-gray-900" data-i18n="notif2Title">✅ Booking confirmed</p>
+                <p class="text-gray-600 mt-0.5" data-i18n="notif2Body">Your seat for Pune → Mumbai on 15 September is confirmed.</p>
+              </div>
+              <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                <p class="font-bold text-gray-900" data-i18n="notif3Title">🌱 Sustainability milestone!</p>
+                <p class="text-gray-600 mt-0.5" data-i18n="notif3Body">You have avoided over 31 kg of CO₂e with Saarthi shared EV rides!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- USER PROFILE ICON & DROPDOWN (STRICTLY TOP-RIGHT) -->
+        <!-- USER PROFILE ICON & DROPDOWN (STRICTLY TOP-RIGHT) -->
+        <div id="headerProfileContainer" class="relative">
+          <button id="headerProfileBtn" class="user-profile-chip flex items-center gap-2 px-2 sm:px-2.5 py-1 bg-white hover:bg-green-50/70 border border-gray-200 hover:border-green-300 rounded-full sm:rounded-2xl cursor-pointer shadow-xs hover:shadow transition-all group" title="Account & Identity" aria-expanded="false" aria-haspopup="true">
+            <div class="relative">
+              <img id="headerUserAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" alt="Umesh" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-green-500 shadow-xs transition transform group-hover:scale-105" />
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+            </div>
+            <div class="hidden lg:block text-left">
+              <div class="flex items-center gap-1">
+                <span id="headerUserName" class="block text-xs font-bold text-gray-900 leading-tight" data-i18n="profileName">Umesh Sharma</span>
+                <span id="headerIdentityBadge" class="text-[9px] font-black text-green-800 bg-green-100 px-1 py-0.2 rounded-full border border-green-200">🛡️</span>
+              </div>
+              <div class="flex items-center gap-1 text-[10px] text-gray-500 font-medium">
+                <span id="headerUserRating">⭐ 4.9</span>
+                <span class="text-gray-300">·</span>
+                <span class="text-green-700 font-bold">Driver</span>
+              </div>
+            </div>
+            <span class="text-gray-400 text-xs hidden sm:inline ml-0.5">▾</span>
+          </button>
+
+          <!-- YouTube-Style Profile Dropdown Menu -->
+          <div id="profileDropdownMenu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 px-2 z-50">
+            <!-- Profile Dossier Header -->
+            <div class="px-3 py-2 border-b border-gray-100 flex items-center gap-3">
+              <img id="menuUserAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" alt="Umesh" class="w-10 h-10 rounded-full border-2 border-green-500 object-cover" />
+              <div class="flex-1 min-w-0">
+                <p id="menuUserName" class="text-xs font-black text-gray-900 truncate" data-i18n="profileName">Umesh Sharma</p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span id="menuIdentityBadge" class="text-[10px] font-extrabold text-green-800 bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
+                    🛡️ Identity Verified
+                  </span>
+                  <span id="menuRatingBadge" class="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-200">
+                    ⭐ 4.9 Rating
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Menu Items -->
+            <div class="mt-2 space-y-0.5 text-xs font-semibold text-gray-700">
+              <button id="profileMenuProfileBtn" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-green-50 hover:text-green-800 transition flex items-center gap-2.5">
+                <span class="text-base">👤</span>
+                <span data-i18n="menuProfile">Profile</span>
+              </button>
+              <button id="profileMenuTripsBtn" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-green-50 hover:text-green-800 transition flex items-center gap-2.5">
+                <span class="text-base">🗓️</span>
+                <span data-i18n="menuMyTrips">My Trips</span>
+              </button>
+              <button id="profileMenuImpactBtn" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-green-50 hover:text-green-800 transition flex items-center gap-2.5">
+                <span class="text-base">🌱</span>
+                <span data-i18n="menuMyImpact">My Impact</span>
+              </button>
+              <button id="profileMenuSettingsBtn" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-green-50 hover:text-green-800 transition flex items-center gap-2.5">
+                <span class="text-base">⚙️</span>
+                <span data-i18n="menuSettings">Settings</span>
+              </button>
+            </div>
+
+            <div class="border-t border-gray-100 my-1.5"></div>
+
+            <!-- Appearance / Theme Switcher Section -->
+            <div class="p-2.5 my-1 rounded-xl bg-gray-50/80 border border-gray-100">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                  <span id="profileThemeIcon" class="text-sm">☀️</span>
+                  <span class="text-xs font-bold text-gray-800" data-i18n="themeAppearance">Appearance</span>
+                </div>
+                <!-- Compact toggle: ☀️ ─── 🌙 -->
+                <button type="button" id="compactThemeToggleBtn" class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-200 transition cursor-pointer" title="Toggle Light / Dark Mode" aria-label="Toggle Light and Dark Mode">
+                  <span class="text-[10px]">☀️</span>
+                  <span class="w-6 h-3 bg-gray-300 rounded-full relative inline-block transition-colors">
+                    <span id="compactThemeThumb" class="w-2.5 h-2.5 bg-white rounded-full absolute top-0.25 left-0.5 transition-all shadow-2xs"></span>
+                  </span>
+                  <span class="text-[10px]">🌙</span>
+                </button>
+              </div>
+
+              <!-- Explicit Theme Buttons -->
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" id="btnThemeSelectLight" class="theme-option-btn flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg text-[11px] font-bold border transition cursor-pointer bg-white text-gray-800 border-green-500 shadow-2xs" data-theme-val="light">
+                  <span>☀️</span>
+                  <span data-i18n="themeLight">Light</span>
+                </button>
+                <button type="button" id="btnThemeSelectDark" class="theme-option-btn flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg text-[11px] font-bold border transition cursor-pointer bg-gray-100 text-gray-600 border-transparent hover:bg-gray-200" data-theme-val="dark">
+                  <span>🌙</span>
+                  <span data-i18n="themeDark">Dark</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <button id="profileMenuLogoutBtn" class="w-full text-left px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-xs font-bold transition flex items-center gap-2.5">
+                <span class="text-base">🚪</span>
+                <span data-i18n="menuLogOut">Log Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guest Auth State Buttons (When Logged Out) -->
+        <div id="headerGuestAuthContainer" class="hidden items-center gap-2">
+          <button id="btnHeaderSignIn" type="button" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-700 hover:text-green-700 bg-white hover:bg-green-50 border border-gray-200 hover:border-green-300 rounded-xl transition shadow-xs cursor-pointer">
+            <span>👤</span>
+            <span data-i18n="btnSignIn">Sign In</span>
+          </button>
+          <button id="btnHeaderSignUp" type="button" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl transition shadow-xs hover:shadow cursor-pointer">
+            <span>✨</span>
+            <span data-i18n="btnSignUp">Sign Up</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. YOUTUBE-STYLE LEFT VERTICAL SIDEBAR
+       ========================================================================= -->
+  <aside id="mainSidebar" class="youtube-sidebar fixed top-16 left-0 bottom-0 z-30 bg-white border-r border-gray-200 overflow-y-auto overflow-x-hidden flex flex-col justify-between transition-all duration-300 w-60 -translate-x-full md:translate-x-0 shadow-sm md:shadow-none" aria-label="Main Navigation">
+    <div class="p-3 space-y-3">
+      
+      <!-- Group 1: Primary Navigation -->
+      <div class="space-y-1">
+        <a href="#dashboardSection" data-nav-target="dashboardSection" class="sidebar-item active group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition relative" title="Home">
+          <span class="sidebar-icon text-lg flex-shrink-0">🏠</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarHome">Home</span>
+          <span class="sidebar-tooltip">Home</span>
+        </a>
+        <a href="#resultsSection" data-nav-target="resultsSection" class="sidebar-item group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="Find a Ride">
+          <span class="sidebar-icon text-lg flex-shrink-0">🔍</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarFindRide">Find a Ride</span>
+          <span class="sidebar-tooltip">Find a Ride</span>
+        </a>
+        <a href="#offerRideSection" data-nav-target="offerRideSection" class="sidebar-item group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="Offer a Ride">
+          <span class="sidebar-icon text-lg flex-shrink-0">🚗</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarOfferRide">Offer a Ride</span>
+          <span class="sidebar-tooltip">Offer a Ride</span>
+        </a>
+        <a href="#myTripsSection" data-nav-target="myTripsSection" class="sidebar-item group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="My Trips">
+          <span class="sidebar-icon text-lg flex-shrink-0">🗓️</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarMyTrips">My Trips</span>
+          <span class="sidebar-tooltip">My Trips</span>
+        </a>
+        <a href="#myImpactSection" data-nav-target="myImpactSection" class="sidebar-item group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="My Impact">
+          <span class="sidebar-icon text-lg flex-shrink-0">🌱</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarMyImpact">My Impact</span>
+          <span class="sidebar-tooltip">My Impact</span>
+        </a>
+      </div>
+
+      <!-- Divider -->
+      <div class="sidebar-divider border-t border-gray-200/80 my-1.5"></div>
+
+      <!-- Group 2: Community & Safety -->
+      <div class="space-y-1">
+        <a href="#communitySection" data-nav-target="communitySection" class="sidebar-item group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="Community">
+          <span class="sidebar-icon text-lg flex-shrink-0">🤝</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarCommunity">Community</span>
+          <span class="sidebar-tooltip">Community</span>
+        </a>
+        <button id="sidebarSafetyCenterBtn" class="sidebar-item w-full text-left group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="Safety Center">
+          <span class="sidebar-icon text-lg flex-shrink-0">🛡️</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarSafety">Safety Center</span>
+          <span class="sidebar-tooltip">Safety Center</span>
+        </button>
+        <button id="sidebarAiBtn" class="sidebar-item w-full text-left group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="Saarthi AI">
+          <span class="sidebar-icon text-lg flex-shrink-0">🤖</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarAi">Saarthi AI</span>
+          <span class="sidebar-tooltip">Saarthi AI</span>
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="sidebar-divider border-t border-gray-200/80 my-1.5"></div>
+
+      <!-- Group 3: Settings & Help -->
+      <div class="space-y-1">
+        <button id="sidebarThemeToggleBtn" class="sidebar-item w-full text-left group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative cursor-pointer" title="Toggle Light / Dark Theme">
+          <span id="sidebarThemeIcon" class="sidebar-icon text-lg flex-shrink-0">☀️</span>
+          <span class="sidebar-label truncate" id="sidebarThemeLabel" data-i18n="themeAppearance">Appearance</span>
+          <span class="sidebar-tooltip">Appearance</span>
+        </button>
+        <button id="sidebarSettingsBtn" class="sidebar-item w-full text-left group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="Settings">
+          <span class="sidebar-icon text-lg flex-shrink-0">⚙️</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarSettings">Settings</span>
+          <span class="sidebar-tooltip">Settings</span>
+        </button>
+        <button id="sidebarHelpBtn" class="sidebar-item w-full text-left group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition relative" title="Help & FAQs">
+          <span class="sidebar-icon text-lg flex-shrink-0">❓</span>
+          <span class="sidebar-label truncate" data-i18n="sidebarHelp">Help</span>
+          <span class="sidebar-tooltip">Help</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer p-3 border-t border-gray-100 text-[10px] text-gray-400 text-center">
+      <p class="font-bold text-gray-600">SAARTHI 🚗🌱</p>
+      <p class="mt-0.5">India EV Carpooling</p>
+    </div>
+  </aside>
+
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div id="sidebarBackdrop" class="hidden fixed inset-0 z-20 bg-black/40 backdrop-blur-xs md:hidden transition-opacity"></div>
+
+  <!-- =========================================================================
+       3. MAIN CONTENT CONTAINER (Beside Left Sidebar)
+       ========================================================================= -->
+  <div id="mainContentWrapper" class="pt-16 md:ml-60 transition-[margin] duration-300 min-h-screen flex flex-col justify-between">
+    <main class="flex-1">
+      <!-- =======================================================================
+           DASHBOARD MAIN VIEW (Personalized Greeting -> Search -> EV Pref -> Quick Actions -> Recommended Rides -> Impact)
+           ======================================================================= -->
+    <section id="dashboardSection" class="py-6 sm:py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Personalized Greeting Banner -->
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight" data-i18n="greeting">
+              Good Morning, Umesh 👋
+            </h2>
+            <p class="text-sm text-gray-500 font-medium mt-0.5" data-i18n="greetingSub">
+              Where are you travelling today?
+            </p>
+          </div>
+
+          <!-- Quick Corridor Chip Pills -->
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider hidden lg:inline">Quick Routes:</span>
+            <button class="popular-route-chip px-3 py-1 bg-white hover:bg-green-50 hover:border-green-300 border border-gray-200 rounded-full text-xs font-semibold text-gray-700 transition" data-from="Pune" data-to="Mumbai">
+              Pune → Mumbai
+            </button>
+            <button class="popular-route-chip px-3 py-1 bg-white hover:bg-green-50 hover:border-green-300 border border-gray-200 rounded-full text-xs font-semibold text-gray-700 transition" data-from="Mumbai" data-to="Pune">
+              Mumbai → Pune
+            </button>
+            <button class="popular-route-chip px-3 py-1 bg-white hover:bg-green-50 hover:border-green-300 border border-gray-200 rounded-full text-xs font-semibold text-gray-700 transition" data-from="Pune" data-to="Nashik">
+              Pune → Nashik
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Search Card -->
+        <div class="bg-white rounded-3xl p-5 sm:p-7 border border-gray-200 shadow-sm mb-6">
+          <form id="searchForm" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            
+            <!-- Origin Input with Smart Autocomplete -->
+            <div class="md:col-span-3">
+              <label for="searchFrom" class="block text-[11px] font-extrabold uppercase tracking-wider text-gray-400 mb-1 flex items-center gap-1">
+                <span>📍</span>
+                <span data-i18n="labelFrom">FROM</span>
+              </label>
+              <div class="relative">
+                <input type="text" id="searchFrom" value="Pune" placeholder="e.g. Pune or Wakad" data-i18n-placeholder="placeholderFrom" class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100/80 focus:bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-green-500 transition pr-8" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" required />
+                <button type="button" id="btnClearSearchFrom" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold p-1">✕</button>
+                <div id="searchFromDropdown" class="autocomplete-dropdown hidden" role="listbox"></div>
+              </div>
+            </div>
+
+            <!-- Swap Cities Button -->
+            <div class="hidden md:flex md:col-span-1 justify-center pt-5">
+              <button type="button" id="btnSwapCities" class="p-2.5 rounded-xl bg-gray-100 hover:bg-green-100 text-gray-600 hover:text-green-700 transition" title="Swap Cities">
+                ⇄
+              </button>
+            </div>
+
+            <!-- Destination Input with Smart Autocomplete -->
+            <div class="md:col-span-3">
+              <label for="searchTo" class="block text-[11px] font-extrabold uppercase tracking-wider text-gray-400 mb-1 flex items-center gap-1">
+                <span>🏁</span>
+                <span data-i18n="labelTo">TO</span>
+              </label>
+              <div class="relative">
+                <input type="text" id="searchTo" value="Mumbai" placeholder="e.g. Mumbai or Andheri" data-i18n-placeholder="placeholderTo" class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100/80 focus:bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-green-500 transition pr-8" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" required />
+                <button type="button" id="btnClearSearchTo" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold p-1">✕</button>
+                <div id="searchToDropdown" class="autocomplete-dropdown hidden" role="listbox"></div>
+              </div>
+            </div>
+
+            <!-- Date Input -->
+            <div class="md:col-span-2">
+              <label for="searchDate" class="block text-[11px] font-extrabold uppercase tracking-wider text-gray-400 mb-1 flex items-center gap-1">
+                <span>📅</span>
+                <span data-i18n="labelDate">DATE</span>
+              </label>
+              <input type="date" id="searchDate" value="2026-09-15" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 transition" />
+            </div>
+
+            <!-- Passengers Select -->
+            <div class="md:col-span-1">
+              <label for="searchPassengers" class="block text-[11px] font-extrabold uppercase tracking-wider text-gray-400 mb-1">
+                <span data-i18n="labelPassengers">SEATS</span>
+              </label>
+              <select id="searchPassengers" class="w-full px-3 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-green-500 transition">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="md:col-span-2 pt-1 md:pt-5">
+              <button type="submit" id="btnSearchRidesSubmit" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-extrabold text-sm rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
+                <span>🔍</span>
+                <span data-i18n="btnFindRides">Find Rides</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- POPULAR CORRIDOR LIVE NOTIFICATION BANNER -->
+        <div id="popularRouteBanner" class="mb-5 popular-corridor-banner">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🚗</span>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-green-800 bg-green-200/80 px-2 py-0.5 rounded-full" data-i18n="popularRouteBadgeTitle">POPULAR SAARTHI ROUTE</span>
+                <span id="popularRouteCorridorText" class="text-xs font-extrabold text-green-900 font-mono">Pune → Mumbai</span>
+              </div>
+              <p id="popularRouteCountText" class="text-xs text-green-800 font-semibold mt-0.5">
+                42 community rides available · High-frequency corridor
+              </p>
+            </div>
+          </div>
+          <span class="text-xs font-black text-green-700 bg-white px-3 py-1.5 rounded-xl border border-green-200 shadow-sm hidden sm:inline-block">
+            ⚡ EV Preference Available
+          </span>
+        </div>
+
+        <!-- EV PREFERENCE PROMINENT BANNER (Immediately below search card) -->
+        <div class="bg-gradient-to-r from-[#F0FDF4] via-[#DCFCE7]/40 to-[#F0FDF4] rounded-2xl p-5 border border-green-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-green-600 text-white flex items-center justify-center text-2xl shadow-md pulse-dot flex-shrink-0">
+              ⚡
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-black uppercase tracking-wider text-green-800" data-i18n="evPrefTitle">RIDE PREFERENCES</span>
+                <span id="evToggleStatusText" class="text-xs font-bold px-2 py-0.5 rounded bg-green-100 text-green-800">ON</span>
+              </div>
+              <h3 class="text-base font-extrabold text-gray-900" data-i18n="evPrefToggleLabel">
+                Prefer Electric Vehicles
+              </h3>
+              <p id="evPrefBannerNote" class="text-xs text-green-800 font-medium mt-0.5" data-i18n="evPrefDesc">
+                Show EV rides first to support sustainable travel.
+              </p>
+            </div>
+          </div>
+
+          <!-- Animated Toggle Switch -->
+          <div class="flex items-center gap-3 self-end sm:self-center">
+            <label for="evPreferenceToggle" class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="evPreferenceToggle" class="sr-only peer" checked />
+              <div class="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-600 shadow-inner"></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS ROW (Section 7) -->
+        <div class="mb-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Card 1: Find a Ride -->
+            <a href="#resultsSection" data-nav-target="resultsSection" class="quick-action-card group p-5 bg-white hover:bg-green-50/50 rounded-2xl border border-gray-200 hover:border-green-300 shadow-sm hover:shadow transition-all block">
+              <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                🔍
+              </div>
+              <h4 class="text-sm font-extrabold text-gray-900 group-hover:text-green-800 transition" data-i18n="qaFindRideTitle">Find a Ride</h4>
+              <p class="text-xs text-gray-500 mt-0.5" data-i18n="qaFindRideDesc">Find your next journey</p>
+            </a>
+
+            <!-- Card 2: Offer a Ride -->
+            <a href="#offerRideSection" data-nav-target="offerRideSection" class="quick-action-card group p-5 bg-white hover:bg-green-50/50 rounded-2xl border border-gray-200 hover:border-green-300 shadow-sm hover:shadow transition-all block">
+              <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                🚗
+              </div>
+              <h4 class="text-sm font-extrabold text-gray-900 group-hover:text-green-800 transition" data-i18n="qaOfferRideTitle">Offer a Ride</h4>
+              <p class="text-xs text-gray-500 mt-0.5" data-i18n="qaOfferRideDesc">Share your empty seats</p>
+            </a>
+
+            <!-- Card 3: My Trips -->
+            <a href="#myTripsSection" data-nav-target="myTripsSection" class="quick-action-card group p-5 bg-white hover:bg-green-50/50 rounded-2xl border border-gray-200 hover:border-green-300 shadow-sm hover:shadow transition-all block">
+              <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                🗓️
+              </div>
+              <h4 class="text-sm font-extrabold text-gray-900 group-hover:text-green-800 transition" data-i18n="qaMyTripsTitle">My Trips</h4>
+              <p class="text-xs text-gray-500 mt-0.5" data-i18n="qaMyTripsDesc">View your journeys</p>
+            </a>
+
+            <!-- Card 4: My Impact -->
+            <a href="#myImpactSection" data-nav-target="myImpactSection" class="quick-action-card group p-5 bg-white hover:bg-green-50/50 rounded-2xl border border-gray-200 hover:border-green-300 shadow-sm hover:shadow transition-all block">
+              <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                🌱
+              </div>
+              <h4 class="text-sm font-extrabold text-gray-900 group-hover:text-green-800 transition" data-i18n="qaMyImpactTitle">My Impact</h4>
+              <p class="text-xs text-gray-500 mt-0.5" data-i18n="qaMyImpactDesc">See your travel impact</p>
+            </a>
+          </div>
+        </div>
+
+        <!-- RECOMMENDED RIDES (Section 6) -->
+        <div class="mb-8">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-green-800 bg-green-100 px-2 py-0.5 rounded-full" data-i18n="recommendedRidesBadge">RECOMMENDED MATCHES</span>
+                <span class="text-xs text-gray-400">·</span>
+                <span class="text-xs text-gray-500" data-i18n="recommendedRidesSub">EV rides appear first when preference is ON</span>
+              </div>
+              <h3 class="text-xl sm:text-2xl font-black text-gray-900 mt-1" data-i18n="recommendedRidesTitle">
+                RECOMMENDED RIDES
+              </h3>
+            </div>
+            <a href="#resultsSection" data-nav-target="resultsSection" class="text-xs font-bold text-green-700 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 self-start sm:self-auto">
+              <span>View All Rides & Filters</span>
+              <span>→</span>
+            </a>
+          </div>
+
+          <!-- Dynamic Ride Cards Grid -->
+          <div id="recommendedRideCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Rendered dynamically by script.js -->
+          </div>
+        </div>
+
+        <!-- COMPACT SUSTAINABILITY IMPACT (Section 8) -->
+        <div id="compactImpactSection" class="bg-gradient-to-br from-white via-green-50/40 to-emerald-50/50 rounded-3xl p-6 sm:p-8 border border-green-200/80 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div class="flex items-center gap-2.5">
+              <span class="text-2xl">🌱</span>
+              <div>
+                <h3 class="text-base sm:text-lg font-black text-gray-900 uppercase tracking-tight" data-i18n="compactImpactTitle">YOUR SAARTHI IMPACT</h3>
+                <p class="text-xs text-gray-500 font-medium" data-i18n="compactImpactSub">Personal milestone in collective sustainable mobility</p>
+              </div>
+            </div>
+            <a href="#myImpactSection" id="btnGoToFullImpact" data-nav-target="myImpactSection" class="text-xs font-bold text-green-700 hover:text-green-800 flex items-center gap-1 self-start sm:self-auto">
+              <span data-i18n="viewFullImpact">Detailed Breakdown</span>
+              <span>→</span>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div class="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs">
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="statSharedRides">Shared Rides</p>
+              <p id="statCompactSharedRides" class="text-2xl sm:text-3xl font-black text-gray-900 mt-1">12</p>
+            </div>
+            <div class="p-4 bg-white rounded-2xl border border-green-200 shadow-xs bg-green-50/30">
+              <p class="text-xs font-bold text-green-800 uppercase tracking-wider" data-i18n="statEvRides">EV Rides</p>
+              <p id="statCompactEvRides" class="text-2xl sm:text-3xl font-black text-green-700 mt-1">8</p>
+            </div>
+            <div class="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs">
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="statDistance">Distance</p>
+              <p id="statCompactDistance" class="text-2xl sm:text-3xl font-black text-gray-900 mt-1">640 km</p>
+            </div>
+            <div class="p-4 bg-white rounded-2xl border border-emerald-300 shadow-xs bg-emerald-50/50">
+              <p class="text-xs font-bold text-emerald-900 uppercase tracking-wider" data-i18n="statCo2Avoided">Estimated CO₂e avoided*</p>
+              <p id="statCompactCo2Avoided" class="text-2xl sm:text-3xl font-black text-emerald-700 mt-1">96 kg</p>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-gray-400 text-center mt-4 italic" data-i18n="impactEstimatesDisclaimer">
+            *All environmental values are estimates calculated against baseline single-occupant fossil fuel car journeys.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         HOW SAARTHI WORKS & POPULAR ROUTES
+         ======================================================================= -->
+    <section id="heroSection" class="relative overflow-hidden py-12 bg-white border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-2xl mx-auto mb-8">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100/90 border border-green-200 text-green-900 text-xs font-bold mb-3 shadow-xs">
+            <span>⚡</span>
+            <span data-i18n="brandSubtagline">Travel together. Travel greener.</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-[#17221B] tracking-tight" data-i18n="howItWorksTitle">
+            How Saarthi Works
+          </h2>
+          <p class="text-xs sm:text-sm text-[#66736B] mt-1.5" data-i18n="howItWorksSub">
+            Simple, transparent, and built on community trust
+          </p>
+        </div>
+
+        <!-- How Saarthi Works (01 Search, 02 Connect, 03 Share, 04 Impact) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200/80 shadow-xs">
+            <span class="text-xs font-black text-green-700 bg-green-100 px-2.5 py-1 rounded-md mb-2.5 inline-block" data-i18n="step1Title">01 Search</span>
+            <h3 class="text-sm font-bold text-gray-900 mb-1" data-i18n="step1Title">01 Search</h3>
+            <p class="text-xs text-gray-500 leading-relaxed" data-i18n="step1Desc">Find a journey matching your route and schedule between cities.</p>
+          </div>
+
+          <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200/80 shadow-xs">
+            <span class="text-xs font-black text-green-700 bg-green-100 px-2.5 py-1 rounded-md mb-2.5 inline-block" data-i18n="step2Title">02 Connect</span>
+            <h3 class="text-sm font-bold text-gray-900 mb-1" data-i18n="step2Title">02 Connect</h3>
+            <p class="text-xs text-gray-500 leading-relaxed" data-i18n="step2Desc">Choose a trusted, verified community driver with mutual reviews.</p>
+          </div>
+
+          <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200/80 shadow-xs">
+            <span class="text-xs font-black text-green-700 bg-green-100 px-2.5 py-1 rounded-md mb-2.5 inline-block" data-i18n="step3Title">03 Share</span>
+            <h3 class="text-sm font-bold text-gray-900 mb-1" data-i18n="step3Title">03 Share</h3>
+            <p class="text-xs text-gray-500 leading-relaxed" data-i18n="step3Desc">Share the journey, enjoy great conversations, and split fuel costs.</p>
+          </div>
+
+          <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200/80 shadow-xs">
+            <span class="text-xs font-black text-green-700 bg-green-100 px-2.5 py-1 rounded-md mb-2.5 inline-block" data-i18n="step4Title">04 Impact</span>
+            <h3 class="text-sm font-bold text-gray-900 mb-1" data-i18n="step4Title">04 Impact</h3>
+            <p class="text-xs text-gray-500 leading-relaxed" data-i18n="step4Desc">Track your personal CO₂e avoided and EV travel milestones.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         4. RESULTS & FILTER PANEL SECTION
+         ======================================================================= -->
+    <section id="resultsSection" class="py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <!-- LEFT SIDEBAR: FILTERS -->
+          <aside class="lg:col-span-4 space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm sticky top-28">
+              
+              <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">⚙️</span>
+                  <h3 class="text-sm font-extrabold text-gray-900 uppercase tracking-wider" data-i18n="filtersTitle">FILTERS</h3>
+                </div>
+                <button type="button" id="btnResetFilters" class="text-xs font-bold text-green-600 hover:text-green-800" data-i18n="clearAll">
+                  Reset
+                </button>
+              </div>
+
+              <!-- Vehicle Type Filter -->
+              <div class="mb-5">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5" data-i18n="filterVehicleType">
+                  Vehicle Type
+                </h4>
+                <div class="space-y-2 text-xs font-semibold text-gray-700">
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" value="EV" class="filter-vehicle-type rounded text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span class="flex items-center gap-1.5">⚡ <span data-i18n="evBadgeText">Electric Vehicle (EV)</span></span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" value="Hybrid" class="filter-vehicle-type rounded text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span class="flex items-center gap-1.5">🔋 <span data-i18n="hybridBadgeText">Hybrid</span></span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" value="CNG" class="filter-vehicle-type rounded text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span class="flex items-center gap-1.5">🟢 <span data-i18n="cngBadgeText">CNG</span></span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" value="Petrol" class="filter-vehicle-type rounded text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span class="flex items-center gap-1.5">⛽ <span data-i18n="petrolBadgeText">Petrol</span></span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" value="Diesel" class="filter-vehicle-type rounded text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span class="flex items-center gap-1.5">🚙 <span data-i18n="dieselBadgeText">Diesel</span></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Price Range Slider -->
+              <div class="mb-5 border-t border-gray-100 pt-4">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="filterMaxPrice">
+                    Max Price / Seat
+                  </h4>
+                  <span id="filterPriceDisplay" class="text-xs font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200">
+                    ₹1200
+                  </span>
+                </div>
+                <input type="range" id="filterPriceSlider" min="300" max="1200" step="50" value="1200" />
+                <div class="flex justify-between text-[10px] text-gray-400 font-semibold mt-1">
+                  <span>₹300</span>
+                  <span>₹750</span>
+                  <span>₹1200</span>
+                </div>
+              </div>
+
+              <!-- Departure Time Slots -->
+              <div class="mb-5 border-t border-gray-100 pt-4">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5" data-i18n="filterDeparture">
+                  Departure Time
+                </h4>
+                <div class="space-y-2 text-xs font-semibold text-gray-700">
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" value="morning" class="filter-departure-time rounded text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span data-i18n="timeMorning">Morning (6 AM - 12 PM)</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" value="afternoon" class="filter-departure-time rounded text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span data-i18n="timeAfternoon">Afternoon (12 PM - 5 PM)</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="checkbox" value="evening" class="filter-departure-time rounded text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span data-i18n="timeEvening">Evening (5 PM - 10 PM)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Driver Rating Filter -->
+              <div class="border-t border-gray-100 pt-4">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5" data-i18n="filterRating">
+                  Driver Rating
+                </h4>
+                <div class="space-y-2 text-xs font-semibold text-gray-700">
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="radio" name="filterRating" value="0" class="text-green-600 focus:ring-green-500 w-4 h-4" checked />
+                    <span data-i18n="ratingAny">Any Rating</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="radio" name="filterRating" value="4.0" class="text-green-600 focus:ring-green-500 w-4 h-4" />
+                    <span data-i18n="rating4Plus">⭐ 4.0 & above</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="radio" name="filterRating" value="4.5" class="text-green-600 focus:ring-green-500 w-4 h-4" />
+                    <span data-i18n="rating45Plus">⭐ 4.5 & above</span>
+                  </label>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input type="radio" name="filterRating" value="4.8" class="text-green-600 focus:ring-green-500 w-4 h-4" />
+                    <span data-i18n="rating48Plus">⭐ 4.8 & above</span>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </aside>
+
+          <!-- RIGHT MAIN COLUMN: SORTING & RIDE RESULTS CARDS -->
+          <div class="lg:col-span-8">
+            
+            <!-- Results Header & Sort Control -->
+            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+              <div>
+                <h3 class="text-base font-extrabold text-gray-900" data-i18n="resultsHeader">
+                  Available Community Rides
+                </h3>
+                <span id="resultsCountBadge" class="text-xs text-gray-500 font-medium">
+                  Loading rides...
+                </span>
+              </div>
+
+              <!-- Sorting Dropdown -->
+              <div class="flex items-center gap-2 self-end sm:self-auto">
+                <label for="sortBySelect" class="text-xs font-bold text-gray-500 whitespace-nowrap" data-i18n="sortByLabel">
+                  Sort By:
+                </label>
+                <select id="sortBySelect" class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-green-500 transition">
+                  <option value="recommended" data-i18n="sortRecommended">Recommended Match</option>
+                  <option value="evs_first" data-i18n="sortEvsFirst">🌱 EVs First</option>
+                  <option value="price_asc" data-i18n="sortPriceLowHigh">Price: Low → High</option>
+                  <option value="departure_earliest" data-i18n="sortDepartureEarliest">Departure: Earliest</option>
+                  <option value="rating_highest" data-i18n="sortRatingHighest">Rating: Highest</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Dynamic Ride Cards Grid -->
+            <div id="rideResultsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <!-- Cards are injected dynamically by script.js -->
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         5. COMMUNITY CARPOOL HUBS (Trust & Peer Network)
+         ======================================================================= -->
+    <section id="communitySection" class="py-12 bg-white border-y border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-2xl mx-auto mb-8">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-900 text-xs font-bold mb-2">
+            <span>🤝</span>
+            <span>Community Circles</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-gray-900" data-i18n="communityTitle">
+            Saarthi Community Hubs
+          </h2>
+          <p class="text-sm text-gray-500 mt-2" data-i18n="communitySub">
+            Travel with peers from your college campus, corporate tech park, or hometown group for enhanced safety and shared interests.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Community 1: Campus -->
+          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 hover:border-green-300 transition shadow-sm">
+            <span class="text-2xl mb-3 block">🎓</span>
+            <h3 class="text-base font-bold text-gray-900 mb-1" data-i18n="comm1Title">
+              AIT Pune / COEP Student Community
+            </h3>
+            <p class="text-xs text-gray-500 mb-4" data-i18n="comm1Desc">
+              18 verified student members travelling between Pune & Mumbai this weekend.
+            </p>
+            <button class="popular-route-chip text-xs font-bold text-green-700 hover:text-green-800 flex items-center gap-1" data-from="Pune" data-to="Mumbai">
+              <span data-i18n="btnViewCommunityRides">View Community Rides</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <!-- Community 2: IT Corridor -->
+          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 hover:border-green-300 transition shadow-sm">
+            <span class="text-2xl mb-3 block">🏢</span>
+            <h3 class="text-base font-bold text-gray-900 mb-1" data-i18n="comm2Title">
+              Hinjewadi IT Park & BKC Corridor
+            </h3>
+            <p class="text-xs text-gray-500 mb-4" data-i18n="comm2Desc">
+              32 tech professionals carpooling on Monday & Friday commute corridors.
+            </p>
+            <button class="popular-route-chip text-xs font-bold text-green-700 hover:text-green-800 flex items-center gap-1" data-from="Pune" data-to="Mumbai">
+              <span data-i18n="btnViewCommunityRides">View Community Rides</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <!-- Community 3: Expressway Commuters -->
+          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 hover:border-green-300 transition shadow-sm">
+            <span class="text-2xl mb-3 block">🏙️</span>
+            <h3 class="text-base font-bold text-gray-900 mb-1" data-i18n="comm3Title">
+              Mumbai-Pune Express Commuters Club
+            </h3>
+            <p class="text-xs text-gray-500 mb-4" data-i18n="comm3Desc">
+              Regular verified weekend commuters sharing cost-effective EV rides.
+            </p>
+            <button class="popular-route-chip text-xs font-bold text-green-700 hover:text-green-800 flex items-center gap-1" data-from="Mumbai" data-to="Pune">
+              <span data-i18n="btnViewCommunityRides">View Community Rides</span>
+              <span>→</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         6. OFFER A RIDE (Driver Posting Engine)
+         ======================================================================= -->
+    <section id="offerRideSection" class="py-12 bg-[#F7F9F7]">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="bg-white rounded-3xl p-6 sm:p-10 border border-gray-200 shadow-sm">
+          <div class="text-center max-w-xl mx-auto mb-8">
+            <div class="w-12 h-12 bg-green-100 text-green-700 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">
+              🚗
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-gray-900" data-i18n="offerRideTitle">
+              Offer a Ride as a Community Driver
+            </h2>
+            <p class="text-xs sm:text-sm text-gray-500 mt-2" data-i18n="offerRideSub">
+              Have empty seats on your intercity trip? Share costs, meet great co-travellers, and help reduce road emissions.
+            </p>
+          </div>
+
+          <form id="offerRideForm" class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Offer From with Smart Autocomplete -->
+              <div>
+                <label for="offerFrom" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldLeavingFrom">
+                  Leaving From
+                </label>
+                <div class="relative">
+                  <input type="text" id="offerFrom" value="Pune" placeholder="e.g. Pune or Wakad" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 transition pr-8" autocomplete="off" required />
+                  <div id="offerFromDropdown" class="autocomplete-dropdown hidden" role="listbox"></div>
+                </div>
+              </div>
+
+              <!-- Offer To with Smart Autocomplete -->
+              <div>
+                <label for="offerTo" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldGoingTo">
+                  Going To
+                </label>
+                <div class="relative">
+                  <input type="text" id="offerTo" value="Mumbai" placeholder="e.g. Mumbai or Andheri" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 transition pr-8" autocomplete="off" required />
+                  <div id="offerToDropdown" class="autocomplete-dropdown hidden" role="listbox"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="offerDate" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldDate">
+                  Date
+                </label>
+                <input type="date" id="offerDate" value="2026-09-16" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 transition" required />
+              </div>
+
+              <div>
+                <label for="offerTime" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldTime">
+                  Departure Time
+                </label>
+                <input type="time" id="offerTime" value="08:30" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 transition" required />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="offerVehicleType" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldVehicleType">
+                  Vehicle Type
+                </label>
+                <select id="offerVehicleType" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-green-500 transition">
+                  <option value="EV">⚡ Electric Vehicle (EV)</option>
+                  <option value="Hybrid">🔋 Hybrid</option>
+                  <option value="CNG">🟢 CNG</option>
+                  <option value="Petrol">⛽ Petrol</option>
+                  <option value="Diesel">🚙 Diesel</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="offerVehicleModel" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldVehicleModel">
+                  Vehicle Model
+                </label>
+                <input type="text" id="offerVehicleModel" value="Tata Nexon EV Max" placeholder="e.g. Tata Nexon EV" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 transition" required />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="offerSeats" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldSeats">
+                  Available Empty Seats
+                </label>
+                <select id="offerSeats" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-green-500 transition">
+                  <option value="1">1 Seat</option>
+                  <option value="2">2 Seats</option>
+                  <option value="3" selected>3 Seats</option>
+                  <option value="4">4 Seats</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="offerPrice" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldPrice">
+                  Contribution Price / Seat (₹)
+                </label>
+                <input type="number" id="offerPrice" value="650" min="200" max="2500" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-extrabold text-gray-900 focus:ring-2 focus:ring-green-500 transition" required />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="offerPickup" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldPickup">
+                  Pickup Local Landmark
+                </label>
+                <input type="text" id="offerPickup" value="Hinjewadi Bridge" placeholder="e.g. Hinjewadi Phase 1" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 transition" required />
+              </div>
+
+              <div>
+                <label for="offerDrop" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="fieldDrop">
+                  Drop Local Landmark
+                </label>
+                <input type="text" id="offerDrop" value="Andheri West Highway" placeholder="e.g. Andheri West" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 transition" required />
+              </div>
+            </div>
+
+            <!-- Driver Vehicle Verification Status -->
+            <div class="flex items-center gap-2 p-3 bg-green-50 rounded-xl border border-green-200 text-xs font-bold text-green-900">
+              <span class="text-base">🚗</span>
+              <span data-i18n="driverVehicleVerifiedBadge">🚗 Vehicle Verified by Saarthi</span>
+              <span class="ml-auto text-[10px] bg-green-200 text-green-900 px-2.5 py-0.5 rounded-full font-extrabold uppercase">VERIFIED DRIVER</span>
+            </div>
+
+            <!-- Dashcam Safety Protocol (Section 24) -->
+            <div class="p-4 bg-emerald-50/70 rounded-xl border border-emerald-200 text-xs text-gray-700 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label for="offerDashcamEquipped" class="flex items-center gap-2 cursor-pointer font-bold text-gray-900">
+                  <input type="checkbox" id="offerDashcamEquipped" class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500" checked />
+                  <span data-i18n="dashcamSafetyLabel">📹 Vehicle Equipped with Dashcam for Community Safety</span>
+                </label>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full uppercase">RECOMMENDED</span>
+              </div>
+              <p class="text-[11px] text-gray-500 pl-6 leading-relaxed" data-i18n="dashcamSafetyDesc">
+                Dashcams provide mutual trust and safety assurance. Drivers agree to inform co-passengers and comply with applicable privacy, audio recording, and consent requirements.
+              </p>
+            </div>
+
+            <div class="pt-2">
+              <button type="submit" id="btnPostRideSubmit" class="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-extrabold text-base rounded-2xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <span>🚗</span>
+                <span data-i18n="btnPostRide">Post My Ride</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         7. MY TRIPS SECTION (Upcoming & Completed Bookings)
+         ======================================================================= -->
+    <section id="myTripsSection" class="py-12 bg-white border-t border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-black text-gray-900" data-i18n="myTripsTitle">
+              My Trips
+            </h2>
+            <p class="text-sm text-gray-500">Track and manage your upcoming and completed carpool journeys.</p>
+          </div>
+
+          <!-- Trip Switcher Tabs -->
+          <div class="flex items-center p-1 bg-gray-100 rounded-xl border border-gray-200">
+            <button id="tabUpcomingBtn" class="px-5 py-2 rounded-lg text-xs font-bold bg-green-600 text-white shadow-sm transition" data-i18n="tabUpcoming">
+              Upcoming Rides
+            </button>
+            <button id="tabCompletedBtn" class="px-5 py-2 rounded-lg text-xs font-bold text-gray-700 hover:text-gray-900 transition" data-i18n="tabCompleted">
+              Completed Journeys
+            </button>
+          </div>
+        </div>
+
+        <!-- Upcoming Trips List -->
+        <div id="upcomingTripsContainer" class="space-y-4">
+          <!-- Injected dynamically -->
+        </div>
+
+        <!-- Completed Trips List -->
+        <div id="completedTripsContainer" class="hidden space-y-4">
+          <!-- Injected dynamically -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         8. MY IMPACT 🌱 (Sustainability & CO2e Avoidance Dashboard)
+         ======================================================================= -->
+    <section id="myImpactSection" class="py-14 bg-gradient-to-b from-[#F7F9F7] to-[#F0FDF4]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-2xl mx-auto mb-10">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-900 text-xs font-bold mb-2">
+            <span>🌍</span>
+            <span>Sustainability Contributions</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-black text-gray-900" data-i18n="impactTitle">
+            YOUR SAARTHI IMPACT 🌍
+          </h2>
+          <p class="text-sm text-gray-600 mt-2" data-i18n="impactSub">
+            Every shared ride reduces congestion and cuts greenhouse emissions.
+          </p>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
+          <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm text-center">
+            <span class="text-2xl mb-2 block">🚗</span>
+            <div id="statTotalRides" class="text-3xl sm:text-4xl font-black text-gray-900 leading-tight">12</div>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mt-1" data-i18n="statSharedRides">Shared Rides</p>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-green-300 shadow-sm text-center bg-gradient-to-b from-green-50/50 to-white">
+            <span class="text-2xl mb-2 block">⚡</span>
+            <div id="statEvRides" class="text-3xl sm:text-4xl font-black text-green-700 leading-tight">7</div>
+            <p class="text-xs font-bold text-green-900 uppercase tracking-wider mt-1" data-i18n="statEvRides">EV Rides</p>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm text-center">
+            <span class="text-2xl mb-2 block">🛣️</span>
+            <div id="statSharedDistance" class="text-3xl sm:text-4xl font-black text-gray-900 leading-tight">840 km</div>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mt-1" data-i18n="statSharedDistance">Shared Distance</p>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-emerald-300 shadow-sm text-center bg-gradient-to-b from-emerald-50/50 to-white">
+            <span class="text-2xl mb-2 block">🌱</span>
+            <div id="statCo2Avoided" class="text-3xl sm:text-4xl font-black text-emerald-700 leading-tight">31 kg</div>
+            <p class="text-xs font-bold text-emerald-900 uppercase tracking-wider mt-1" data-i18n="statCo2Avoided">Estimated CO₂e Avoided*</p>
+          </div>
+        </div>
+
+        <!-- Vehicle Choice Visualization Progress Bars -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-sm max-w-3xl mx-auto mb-6">
+          <h3 class="text-base font-extrabold text-gray-900 mb-6 flex items-center justify-between" data-i18n="vehicleChoicesTitle">
+            <span>Your Vehicle Choices</span>
+            <span class="text-xs text-green-600 font-semibold">12 Trips Logged</span>
+          </h3>
+
+          <div class="space-y-4 text-xs font-bold text-gray-700">
+            <!-- EV -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="flex items-center gap-1.5 text-green-800">⚡ EV (Electric Vehicle)</span>
+                <span id="barEvVal" class="text-green-700">7</span>
+              </div>
+              <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div id="barEv" class="stat-bar-fill h-full bg-green-500 rounded-full" style="width: 58%;"></div>
+              </div>
+            </div>
+
+            <!-- Hybrid -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="flex items-center gap-1.5 text-teal-800">🔋 Hybrid</span>
+                <span id="barHybridVal" class="text-teal-700">2</span>
+              </div>
+              <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div id="barHybrid" class="stat-bar-fill h-full bg-teal-500 rounded-full" style="width: 17%;"></div>
+              </div>
+            </div>
+
+            <!-- CNG -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="flex items-center gap-1.5 text-emerald-800">🟢 CNG</span>
+                <span id="barCngVal" class="text-emerald-700">1</span>
+              </div>
+              <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div id="barCng" class="stat-bar-fill h-full bg-emerald-500 rounded-full" style="width: 8%;"></div>
+              </div>
+            </div>
+
+            <!-- Petrol / Diesel -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="flex items-center gap-1.5 text-amber-800">⛽ Petrol</span>
+                <span id="barPetrolVal" class="text-amber-700">2</span>
+              </div>
+              <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div id="barPetrol" class="stat-bar-fill h-full bg-amber-500 rounded-full" style="width: 17%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ecological Equivalents -->
+          <div class="mt-8 pt-6 border-t border-gray-100 bg-green-50/50 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-around gap-4 text-xs font-semibold text-green-900">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">🌳</span>
+              <span data-i18n="treesPlantedEq">Equivalent to the annual carbon sequestered by ~2 mature trees</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">⛽</span>
+              <span data-i18n="fuelSavedEq">Saved an estimated ~18 Litres of fossil fuel</span>
+            </div>
+          </div>
+
+          <!-- Disclaimer Note -->
+          <p class="text-[11px] text-gray-400 text-center mt-4 italic" data-i18n="impactDisclaimer">
+            *CO₂e figures are estimates calculated based on vehicle powertrain, occupancy vs single-occupant travel, and trip distance. Actual real-world emissions may vary.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       9. FOOTER
+       ========================================================================= -->
+  <footer class="bg-white border-t border-gray-200 py-12 text-xs text-gray-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <img src="assets/logo/saarthi-icon.jpg" alt="SAARTHI App Icon" class="h-10 w-10 rounded-2xl object-cover shadow-sm border border-green-200" />
+          <div class="flex flex-col text-left">
+            <span class="font-extrabold text-lg text-[#17221B] leading-none tracking-tight">SAARTHI</span>
+            <span class="text-[9px] font-bold text-[#66736B] tracking-wider uppercase mt-0.5">Share the ride · Share the journey</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-6 font-semibold text-gray-600">
+          <a href="#heroSection" class="hover:text-green-600">How It Works</a>
+          <a href="#communitySection" class="hover:text-green-600">Communities</a>
+          <a href="#myImpactSection" class="hover:text-green-600">Sustainability</a>
+          <a href="#dashboardSection" class="hover:text-green-600">EV Preference</a>
+        </div>
+
+        <p class="text-gray-400">
+          © 2026 SAARTHI Mobility Platform. India Community Carpooling Prototype.
+        </p>
+      </div>
+    </div>
+  </footer>
+  </div> <!-- end #mainContentWrapper -->
+
+  <!-- =========================================================================
+       10. MOBILE BOTTOM NAVIGATION BAR
+       ========================================================================= -->
+  <div class="mobile-bottom-nav md:hidden flex items-center justify-around py-2.5 shadow-lg">
+    <a href="#dashboardSection" data-nav-target="dashboardSection" class="flex flex-col items-center text-[10px] font-bold text-gray-600 hover:text-green-600">
+      <span class="text-lg">🏠</span>
+      <span data-i18n="navDashboard">Dashboard</span>
+    </a>
+    <a href="#resultsSection" data-nav-target="resultsSection" class="flex flex-col items-center text-[10px] font-bold text-gray-600 hover:text-green-600">
+      <span class="text-lg">🔍</span>
+      <span data-i18n="navFindRide">Find</span>
+    </a>
+    <a href="#offerRideSection" data-nav-target="offerRideSection" class="flex flex-col items-center text-[10px] font-bold text-green-700 hover:text-green-800">
+      <span class="text-lg">🚗</span>
+      <span data-i18n="navOfferRide">Offer</span>
+    </a>
+    <a href="#myTripsSection" data-nav-target="myTripsSection" class="flex flex-col items-center text-[10px] font-bold text-gray-600 hover:text-green-600">
+      <span class="text-lg">📋</span>
+      <span data-i18n="navMyTrips">Trips</span>
+    </a>
+    <a href="#myImpactSection" data-nav-target="myImpactSection" class="flex flex-col items-center text-[10px] font-bold text-gray-600 hover:text-green-600">
+      <span class="text-lg">🌱</span>
+      <span data-i18n="navMyImpact">Impact</span>
+    </a>
+  </div>
+
+  <!-- =========================================================================
+       11. INTERACTIVE MODALS & OVERLAYS
+       ========================================================================= -->
+  
+  <!-- RIDE DETAILS MODAL -->
+  <div id="rideDetailsModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+    <div id="rideDetailsModalContent" class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden modal-content border border-gray-200">
+      <!-- Injected dynamically by script.js -->
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SIGN IN MODAL (Clean Authentication Experience)
+       ========================================================================= -->
+  <div id="signInModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden modal-content border border-gray-200 p-6 sm:p-7 relative animate-scale-up">
+      <button id="btnCloseSignInModal" type="button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold p-1 leading-none transition" aria-label="Close Sign In Dialog">&times;</button>
+      
+      <div class="text-center mb-6">
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <img src="assets/logo/saarthi-icon.jpg" alt="SAARTHI" class="w-10 h-10 rounded-xl object-cover shadow-sm border border-green-200" />
+          <span class="font-black text-xl text-gray-900 tracking-tight">SAARTHI</span>
+        </div>
+        <h3 class="text-xl font-black text-gray-900 tracking-tight" data-i18n="signInHeading">
+          WELCOME BACK TO SAARTHI 🚗
+        </h3>
+        <p class="text-xs text-gray-500 mt-1" data-i18n="signInSubheading">
+          Log in to your account to find, offer, and manage your journeys.
+        </p>
+      </div>
+
+      <form id="signInForm" class="space-y-4 text-xs">
+        <div>
+          <label for="signInIdentifier" class="block font-bold text-gray-700 uppercase tracking-wider mb-1.5" data-i18n="labelEmailMobile">
+            Email / Mobile
+          </label>
+          <input type="text" id="signInIdentifier" placeholder="name@example.com or 10-digit mobile" value="umesh@example.com" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 outline-none transition" required autocomplete="username" />
+        </div>
+
+        <div>
+          <label for="signInPassword" class="block font-bold text-gray-700 uppercase tracking-wider mb-1.5" data-i18n="fieldPassword">
+            Password
+          </label>
+          <input type="password" id="signInPassword" placeholder="••••••••" value="password123" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl font-semibold text-gray-900 focus:ring-2 focus:ring-green-500 outline-none transition" required autocomplete="current-password" />
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex items-center gap-2 cursor-pointer text-gray-700 select-none">
+            <input type="checkbox" id="signInRememberMe" class="rounded text-green-600 focus:ring-green-500 w-4 h-4 cursor-pointer" checked />
+            <span class="text-xs font-semibold" data-i18n="rememberMe">Remember me</span>
+          </label>
+          <button type="button" id="btnForgotPassword" class="text-xs font-bold text-green-700 hover:text-green-800 hover:underline cursor-pointer" data-i18n="forgotPassword">
+            Forgot Password?
+          </button>
+        </div>
+
+        <button type="submit" id="btnSubmitSignIn" class="w-full py-3.5 bg-green-600 hover:bg-green-700 active:scale-[0.99] text-white font-black rounded-xl text-sm shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 cursor-pointer" data-i18n="btnSignInAction">
+          <span>SIGN IN</span>
+          <span>→</span>
+        </button>
+
+        <div class="text-center pt-3 border-t border-gray-100 text-xs text-gray-600">
+          <span data-i18n="dontHaveAccount">Don't have an account?</span>
+          <button type="button" id="btnSwitchToSignUp" class="ml-1 font-black text-green-700 hover:text-green-800 hover:underline cursor-pointer" data-i18n="btnCreateAccount">
+            Create Account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SECTION 38: USER SIGNUP & GOVERNMENT ID VERIFICATION MODAL
+       ========================================================================= -->
+  <div id="signupModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden modal-content border border-gray-200">
+      
+      <!-- Stepper Header -->
+      <div class="p-6 bg-gradient-to-b from-green-50/70 to-white border-b border-gray-100">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <img src="assets/logo/saarthi-icon.jpg" alt="SAARTHI App Icon" class="h-8 w-8 rounded-xl object-cover shadow-sm border border-green-200" />
+            <span class="text-sm font-black text-gray-900 tracking-wide">SAARTHI</span>
+          </div>
+          <button id="btnCloseSignupModal" class="text-gray-400 hover:text-gray-700 text-2xl font-bold p-1">&times;</button>
+        </div>
+
+        <!-- 4-Step Progress Stepper -->
+        <div class="flex items-center justify-between max-w-md mx-auto">
+          <!-- Step 1: Account -->
+          <div class="flex flex-col items-center">
+            <div id="stepCircle1" class="step-circle bg-green-600 text-white ring-4 ring-green-100 shadow-sm">1</div>
+            <span class="text-[10px] font-bold text-gray-600 mt-1" data-i18n="stepAccount">Account</span>
+          </div>
+          <div id="stepLine1" class="stepper-line"></div>
+
+          <!-- Step 2: Mobile -->
+          <div class="flex flex-col items-center">
+            <div id="stepCircle2" class="step-circle bg-gray-200 text-gray-500">2</div>
+            <span class="text-[10px] font-bold text-gray-600 mt-1" data-i18n="stepMobile">Mobile</span>
+          </div>
+          <div id="stepLine2" class="stepper-line"></div>
+
+          <!-- Step 3: Identity -->
+          <div class="flex flex-col items-center">
+            <div id="stepCircle3" class="step-circle bg-gray-200 text-gray-500">3</div>
+            <span class="text-[10px] font-bold text-gray-600 mt-1" data-i18n="stepIdentity">Identity</span>
+          </div>
+          <div id="stepLine3" class="stepper-line"></div>
+
+          <!-- Step 4: Complete -->
+          <div class="flex flex-col items-center">
+            <div id="stepCircle4" class="step-circle bg-gray-200 text-gray-500">4</div>
+            <span class="text-[10px] font-bold text-gray-600 mt-1" data-i18n="stepComplete">Complete</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1: BASIC INFORMATION VIEW -->
+      <div id="signupStep1View" class="p-6 space-y-4">
+        <div>
+          <h3 class="text-xl font-black text-gray-900" data-i18n="signupHeader">Create your Saarthi account</h3>
+          <p class="text-xs text-gray-500 mt-0.5" data-i18n="signupSubheader">Travel with people you can trust.</p>
+        </div>
+
+        <form id="signupAccountForm" class="space-y-3.5 text-xs">
+          <div>
+            <label for="signupName" class="block font-bold text-gray-600 uppercase tracking-wider mb-1" data-i18n="fieldFullName">Full Name</label>
+            <input type="text" id="signupName" value="Umesh Sharma" placeholder="e.g. Umesh Sharma" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-green-500" required />
+          </div>
+
+          <div>
+            <label for="signupMobile" class="block font-bold text-gray-600 uppercase tracking-wider mb-1" data-i18n="fieldMobileNumber">Mobile Number</label>
+            <input type="tel" id="signupMobile" value="+91 98765 43210" placeholder="+91 XXXXX XXXXX" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-green-500" required />
+          </div>
+
+          <div>
+            <label for="signupEmail" class="block font-bold text-gray-600 uppercase tracking-wider mb-1" data-i18n="fieldEmailAddress">Email Address</label>
+            <input type="email" id="signupEmail" value="umesh@example.com" placeholder="umesh@example.com" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-green-500" required />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="signupPassword" class="block font-bold text-gray-600 uppercase tracking-wider mb-1" data-i18n="fieldPassword">Password</label>
+              <input type="password" id="signupPassword" value="password123" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-green-500" required />
+            </div>
+            <div>
+              <label for="signupConfirmPassword" class="block font-bold text-gray-600 uppercase tracking-wider mb-1" data-i18n="fieldConfirmPassword">Confirm Password</label>
+              <input type="password" id="signupConfirmPassword" value="password123" class="w-full px-4 py-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-green-500" required />
+            </div>
+          </div>
+
+          <div class="pt-1">
+            <label class="flex items-start gap-2.5 cursor-pointer text-gray-600">
+              <input type="checkbox" id="signupTermsCheck" class="rounded text-green-600 focus:ring-green-500 w-4 h-4 mt-0.5" checked />
+              <span class="text-[11px]" data-i18n="termsAgreement">I agree to Saarthi's Terms & Conditions and Privacy Policy</span>
+            </label>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl text-sm shadow hover:shadow-md transition mt-2 cursor-pointer" data-i18n="btnContinue">
+            Continue →
+          </button>
+
+          <div class="text-center pt-3 border-t border-gray-100 text-xs text-gray-600">
+            <span data-i18n="alreadyHaveAccount">Already have an account?</span>
+            <button type="button" id="btnSwitchToSignIn" class="ml-1 font-black text-green-700 hover:text-green-800 hover:underline cursor-pointer" data-i18n="btnSignIn">
+              Sign In
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- STEP 2: MOBILE OTP VERIFICATION VIEW -->
+      <div id="signupStep2View" class="hidden p-6 space-y-5 text-center">
+        <div>
+          <div class="w-12 h-12 rounded-2xl bg-green-100 text-green-700 flex items-center justify-center text-2xl mx-auto mb-3">
+            📱
+          </div>
+          <h3 class="text-xl font-black text-gray-900" data-i18n="verifyAccountTitle">Verify Your Account</h3>
+          <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto" data-i18n="otpNotice">
+            We've sent a 6-digit verification code to your registered mobile number.
+          </p>
+        </div>
+
+        <form id="signupOtpForm" class="space-y-5">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2.5" data-i18n="enterOtpLabel">
+              Enter 6-Digit OTP
+            </label>
+            <div class="flex items-center justify-center gap-2">
+              <input type="text" maxlength="1" value="1" class="otp-digit" />
+              <input type="text" maxlength="1" value="2" class="otp-digit" />
+              <input type="text" maxlength="1" value="3" class="otp-digit" />
+              <input type="text" maxlength="1" value="4" class="otp-digit" />
+              <input type="text" maxlength="1" value="5" class="otp-digit" />
+              <input type="text" maxlength="1" value="6" class="otp-digit" />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl text-sm shadow hover:shadow-md transition" data-i18n="btnVerifyOtp">
+            Verify & Proceed →
+          </button>
+
+          <div class="text-xs text-gray-500">
+            <span>Didn't receive code? </span>
+            <button type="button" id="btnResendOtp" class="font-bold text-green-600 hover:text-green-800" data-i18n="resendOtp">Resend OTP</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- STEP 3: GOVERNMENT ID VERIFICATION (STRICT PRIVACY COMPLIANT) -->
+      <div id="signupStep3View" class="hidden p-6 space-y-4">
+        <div>
+          <div class="inline-flex items-center gap-1 text-xs font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full border border-green-200 mb-1">
+            <span>🛡️</span>
+            <span>Identity Trust Step</span>
+          </div>
+          <h3 class="text-xl font-black text-gray-900" data-i18n="verifyIdentityTitle">Verify Your Identity 🛡️</h3>
+          <p class="text-xs text-gray-500 mt-1" data-i18n="verifyIdentitySub">
+            Your safety matters to us. Government ID verification helps Saarthi build a trusted community of drivers and passengers.
+          </p>
+        </div>
+
+        <!-- ID Type Radio Selector -->
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2" data-i18n="selectGovIdLabel">Select Government ID</label>
+          <div class="grid grid-cols-2 gap-2 text-xs font-bold text-gray-700">
+            <label class="flex items-center gap-2 p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 cursor-pointer">
+              <input type="radio" name="govIdType" value="Aadhaar" checked class="text-green-600 focus:ring-green-500" />
+              <span data-i18n="idAadhaar">Aadhaar</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 cursor-pointer">
+              <input type="radio" name="govIdType" value="Driving Licence" class="text-green-600 focus:ring-green-500" />
+              <span data-i18n="idDrivingLicence">Driving Licence</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 cursor-pointer">
+              <input type="radio" name="govIdType" value="Passport" class="text-green-600 focus:ring-green-500" />
+              <span data-i18n="idPassport">Passport</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 cursor-pointer">
+              <input type="radio" name="govIdType" value="Voter ID" class="text-green-600 focus:ring-green-500" />
+              <span data-i18n="idVoterId">Voter ID</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- File Upload Dropzone (Simulated Safe Upload - NO SENSITIVE DATA STORED) -->
+        <div id="idUploadDropzone" class="upload-dropzone p-6 text-center">
+          <input type="file" id="govIdFileInput" class="hidden" accept=".jpg,.jpeg,.png,.pdf" />
+          
+          <div id="dropzoneInitialContent" class="space-y-2">
+            <span class="text-3xl block">🪪</span>
+            <p class="text-xs font-bold text-gray-900" data-i18n="uploadGovIdHeading">Upload Government ID</p>
+            <p class="text-[11px] text-gray-400" data-i18n="uploadFormatsHint">JPG, PNG or PDF (Max 5MB)</p>
+            <button type="button" id="btnChooseIdFile" class="mt-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold text-gray-700 shadow-sm transition">
+              <span data-i18n="btnChooseFile">Choose File</span>
+            </button>
+          </div>
+
+          <!-- Document Selected Preview -->
+          <div id="idDocPreviewContainer" class="hidden space-y-2">
+            <span class="text-3xl block text-green-600">✓</span>
+            <p class="text-xs font-bold text-green-800" data-i18n="docSelectedLabel">✓ Document selected</p>
+            <p id="previewFileName" class="text-xs font-bold text-gray-900 truncate max-w-xs mx-auto">aadhaar_document.pdf</p>
+            <p id="previewFileSize" class="text-[10px] text-gray-500 font-semibold">Aadhaar · 1.84 MB</p>
+            <button type="button" id="btnChangeDoc" class="mt-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-bold transition">
+              <span data-i18n="btnChangeDoc">Change Document</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Privacy Protected Banner -->
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 font-medium leading-relaxed">
+          <p data-i18n="privacyRuleBanner">
+            🔒 Privacy Protected: We never store ID numbers, Aadhaar numbers, or ID scans on your device. Only verification status is saved.
+          </p>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="button" id="btnSubmitVerification" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl text-sm shadow hover:shadow-md transition opacity-50 cursor-not-allowed" disabled data-i18n="btnSubmitVerification">
+          Submit for Verification →
+        </button>
+      </div>
+
+      <!-- STEP 4: VERIFICATION IN PROGRESS / STATUS -->
+      <div id="signupStep4View" class="hidden p-6 text-center space-y-4">
+        
+        <!-- PENDING STATUS CARD -->
+        <div id="statusPendingCard" class="space-y-4 py-4">
+          <div class="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mx-auto animate-pulse">
+            🕐
+          </div>
+          <div>
+            <h3 class="text-xl font-black text-gray-900" data-i18n="verifInProgressTitle">Verification in Progress 🕐</h3>
+            <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto" data-i18n="verifInProgressDesc">
+              Your identity document has been submitted. We are verifying your information.
+            </p>
+          </div>
+
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black status-pill-pending">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+            <span data-i18n="statusPending">🟡 Verification Pending</span>
+          </div>
+
+          <!-- Prototype Simulation Controls -->
+          <div class="pt-4 border-t border-gray-100 text-xs">
+            <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Prototype Simulation Controls:</p>
+            <div class="flex items-center justify-center gap-2">
+              <button type="button" id="btnSimulatePass" class="px-3.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition">
+                Simulate Pass (Verify) 🟢
+              </button>
+              <button type="button" id="btnSimulateFail" class="px-3.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition">
+                Simulate Fail 🔴
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAILED STATUS CARD -->
+        <div id="statusFailedCard" class="hidden space-y-4 py-4">
+          <div class="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-3xl mx-auto">
+            🔴
+          </div>
+          <div>
+            <h3 class="text-xl font-black text-gray-900" data-i18n="verifFailedTitle">Verification could not be completed</h3>
+            <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto" data-i18n="verifFailedDesc">
+              We couldn't verify the submitted document. Please check that: the document is clear, information is readable, and the correct ID was selected.
+            </p>
+          </div>
+
+          <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black status-pill-failed">
+            <span data-i18n="statusFailed">🔴 Verification Failed</span>
+          </div>
+
+          <div>
+            <button type="button" id="btnRetryVerification" class="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs font-bold transition" data-i18n="btnTryAgain">
+              Try Again
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- STEP 5: SIGNUP & VERIFICATION COMPLETE SCREEN -->
+      <div id="signupStep5View" class="hidden p-6 text-center space-y-5">
+        <div class="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-3xl mx-auto animate-bounce">
+          🎉
+        </div>
+
+        <div>
+          <h3 class="text-2xl font-black text-gray-900" data-i18n="signupCompleteTitle">Welcome to Saarthi! 🎉</h3>
+          <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto" data-i18n="signupCompleteDesc">
+            Your account has been created successfully. You are now a verified member of India's sustainable carpooling community.
+          </p>
+        </div>
+
+        <!-- Verified Badges Showcase -->
+        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200 text-left space-y-2 text-xs">
+          <div class="flex items-center justify-between pb-2 border-b border-gray-200">
+            <span class="font-extrabold text-green-800 flex items-center gap-1.5" data-i18n="badgeVerifiedMember">
+              🛡️ VERIFIED SAARTHI MEMBER
+            </span>
+            <span class="text-[10px] bg-green-200 text-green-900 font-black px-2 py-0.5 rounded-full">ACTIVE</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px] font-bold text-gray-700 pt-1">
+            <div class="flex items-center gap-1 text-green-700">✓ Phone Verified</div>
+            <div class="flex items-center gap-1 text-green-700">✓ Government ID Verified</div>
+            <div class="flex items-center gap-1 text-green-700">✓ Vehicle Verified</div>
+            <div class="flex items-center gap-1 text-green-700">✓ Community Rated</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnSignupFinish" class="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-black rounded-2xl text-sm shadow-lg hover:shadow-xl transition" data-i18n="btnGoToDashboard">
+          Go to Dashboard →
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       LOGOUT CONFIRMATION MODAL
+       ========================================================================= -->
+  <div id="logoutConfirmModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden modal-content border border-gray-200 p-6 text-center animate-scale-up">
+      <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-2xl mx-auto mb-3">
+        🚪
+      </div>
+      <h3 class="text-lg font-black text-gray-900 mb-1" data-i18n="logoutModalTitle">LOG OUT OF SAARTHI?</h3>
+      <p class="text-xs text-gray-500 mb-6" data-i18n="logoutModalConfirm">Are you sure you want to log out?</p>
+      
+      <div class="grid grid-cols-2 gap-3">
+        <button type="button" id="btnCancelLogout" class="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition cursor-pointer" data-i18n="btnCancel">
+          CANCEL
+        </button>
+        <button type="button" id="btnConfirmLogout" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition shadow-md hover:shadow-lg cursor-pointer" data-i18n="btnConfirmLogout">
+          LOG OUT
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER PROFILE MODAL (Dossier & Live Badges) -->
+  <div id="profileModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden modal-content border border-gray-200 p-6">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+        <h3 class="text-base font-black text-gray-900" data-i18n="profileTitle">User Profile</h3>
+        <button id="btnCloseProfileModal" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="text-center mb-5">
+        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-full object-cover border-2 border-green-500 mx-auto mb-2" />
+        <h4 class="text-lg font-black text-gray-900" data-i18n="profileName">Umesh Sharma</h4>
+        <p class="text-xs text-gray-500 font-semibold" data-i18n="profileMemberSince">Member Since 2026</p>
+      </div>
+
+      <!-- Trust Verification Badges -->
+      <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200 space-y-2.5 mb-5 text-xs font-bold">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600 flex items-center gap-1.5">🪪 Government ID:</span>
+          <span id="profileIdentityStatus" class="text-green-800 bg-green-100 px-2 py-0.5 rounded-full">🟢 Verified</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600 flex items-center gap-1.5">📱 Mobile Phone:</span>
+          <span class="text-green-800 bg-green-100 px-2 py-0.5 rounded-full">🟢 Verified</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600 flex items-center gap-1.5">🚗 Registered Vehicle:</span>
+          <span class="text-green-800 bg-green-100 px-2 py-0.5 rounded-full">🟢 Verified</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600 flex items-center gap-1.5">⭐ Community Rating:</span>
+          <span class="text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">4.8 / 5.0</span>
+        </div>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <button class="btn-open-signup w-full py-2.5 bg-green-50 hover:bg-green-100 text-green-800 font-bold rounded-xl border border-green-200 transition">
+          🛡️ Manage Government ID Verification
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING SUCCESS MODAL -->
+  <div id="bookingSuccessModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+    <div id="bookingSuccessModalContent" class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden modal-content border border-gray-200">
+      <!-- Injected dynamically by script.js -->
+    </div>
+  </div>
+
+  <!-- DRIVER RATING MODAL -->
+  <div id="driverRatingModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden modal-content border border-gray-200 p-6">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+        <h3 class="text-lg font-black text-gray-900" data-i18n="rateDriverTitle">Rate Driver</h3>
+        <button id="btnCloseRatingModal" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+      </div>
+      <form id="driverRatingForm" class="space-y-4 text-xs">
+        <p class="text-gray-600 font-medium">
+          <span data-i18n="ratePrompt">How was your shared journey with</span>
+          <strong id="rateDriverTargetName" class="text-gray-900">Aditya Sharma</strong>?
+        </p>
+
+        <!-- Star selector -->
+        <div class="flex items-center justify-center gap-2 py-3 text-2xl text-amber-400">
+          <span class="cursor-pointer hover:scale-125 transition">★</span>
+          <span class="cursor-pointer hover:scale-125 transition">★</span>
+          <span class="cursor-pointer hover:scale-125 transition">★</span>
+          <span class="cursor-pointer hover:scale-125 transition">★</span>
+          <span class="cursor-pointer hover:scale-125 transition">★</span>
+        </div>
+
+        <div>
+          <label for="reviewComments" class="block font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="labelComments">
+            Write a short review for the community:
+          </label>
+          <textarea id="reviewComments" rows="3" class="w-full p-3 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl text-xs text-gray-800 focus:ring-2 focus:ring-green-500" placeholder="e.g. Great polite driver, smooth EV drive, on time pickup!" data-i18n-placeholder="placeholderReview"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow transition" data-i18n="btnSubmitRating">
+          Submit Review
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       REAL-TIME RIDE TRACKING MODAL (Leaflet + OpenStreetMap + Telemetry + AI)
+       ========================================================================= -->
+  <div id="rideTrackingModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-6xl w-full h-[92vh] max-h-[900px] shadow-2xl overflow-hidden modal-content border border-gray-200 flex flex-col">
+      
+      <!-- Top Control Bar -->
+      <div class="px-5 py-3.5 bg-white border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-xl font-black">
+            🚗
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-black text-gray-900 tracking-tight" data-i18n="trackModalTitle">SAARTHI LIVE TRACKING</h3>
+              <span id="trackTripBadge" class="text-[11px] font-mono font-bold bg-gray-100 text-gray-700 px-2 py-0.5 rounded border border-gray-200">#BK-9042</span>
+            </div>
+            <p id="trackRouteTitle" class="text-xs text-gray-500 font-semibold">Pune (Wakad) → Mumbai (Dadar TT)</p>
+          </div>
+        </div>
+
+        <!-- Mode Indicator & Demo Controls -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <div id="trackModeBadge" class="demo-mode-badge px-3 py-1 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span id="trackModeText" data-i18n="demoModeLabel">SIMULATED GPS / DEMO MODE</span>
+          </div>
+
+          <!-- Demo Speed Multiplier Pills -->
+          <div id="demoSpeedControls" class="flex items-center bg-gray-100 p-0.5 rounded-lg text-[11px] font-bold text-gray-600">
+            <span class="px-1.5 text-gray-400">Speed:</span>
+            <button class="btn-demo-speed px-2 py-0.5 rounded bg-white text-green-700 shadow-sm font-black" data-speed="1">1x</button>
+            <button class="btn-demo-speed px-2 py-0.5 rounded hover:text-green-700 transition" data-speed="2">2x</button>
+            <button class="btn-demo-speed px-2 py-0.5 rounded hover:text-green-700 transition" data-speed="5">5x</button>
+          </div>
+
+          <!-- Role Toggle: Passenger vs Driver Console -->
+          <div class="flex items-center bg-gray-100 p-0.5 rounded-xl text-xs font-bold">
+            <button id="btnRolePassenger" class="px-3 py-1 rounded-lg bg-green-600 text-white shadow-sm transition" data-i18n="rolePassenger">Passenger</button>
+            <button id="btnRoleDriver" class="px-3 py-1 rounded-lg text-gray-600 hover:text-gray-900 transition" data-i18n="roleDriver">Driver</button>
+          </div>
+
+          <!-- Safety Center Trigger -->
+          <button id="btnOpenSafetyCenter" class="px-3 py-1.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 text-xs font-extrabold flex items-center gap-1.5 transition">
+            <span>🛡️</span>
+            <span data-i18n="btnSafetyCenter">Safety Center</span>
+          </button>
+
+          <!-- Close Modal -->
+          <button id="btnCloseTrackingModal" class="text-gray-400 hover:text-gray-700 text-2xl font-bold p-1 leading-none">&times;</button>
+        </div>
+      </div>
+
+      <!-- Main Tracking Body (Grid: Map on Left, Telemetry & AI on Right) -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+        
+        <!-- Left: Map Container -->
+        <div class="lg:col-span-7 xl:col-span-8 relative bg-gray-100 flex flex-col h-[360px] lg:h-full border-b lg:border-b-0 lg:border-r border-gray-200">
+          
+          <!-- Leaflet Map Mount Point -->
+          <div id="trackingMap" class="w-full h-full"></div>
+
+          <!-- Overlay Floating Notification Banner -->
+          <div class="absolute top-3 left-3 right-3 sm:right-auto z-20 flex flex-col gap-2 pointer-events-none">
+            <!-- Active Waypoint / Landmark Pill -->
+            <div class="bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-gray-200 flex items-center gap-2.5 pointer-events-auto max-w-sm">
+              <span class="text-base">📍</span>
+              <div class="text-xs">
+                <span class="text-gray-400 font-bold block uppercase text-[10px]" data-i18n="currentLandmarkLabel">Current Landmark</span>
+                <strong id="trackCurrentLandmark" class="text-gray-900 font-extrabold">Pune Bypass (Wakad Bridge)</strong>
+              </div>
+            </div>
+
+            <!-- Privacy Paused Notice (Shown when Driver pauses location) -->
+            <div id="trackPrivacyBanner" class="hidden bg-amber-500 text-white px-3.5 py-2 rounded-2xl shadow-lg flex items-center gap-2 pointer-events-auto text-xs font-bold animate-fade-in">
+              <span>🔒</span>
+              <span data-i18n="privacyPausedNotice">Driver has paused location sharing for privacy · Trip active</span>
+            </div>
+          </div>
+
+          <!-- Bottom Floating Map Action Buttons -->
+          <div class="absolute bottom-4 right-4 z-20 flex items-center gap-2">
+            <button id="btnRecenterDriver" class="px-3.5 py-2 bg-white/95 backdrop-blur text-gray-800 hover:text-green-700 font-bold text-xs rounded-xl shadow-lg border border-gray-200 flex items-center gap-1.5 transition hover:scale-105">
+              <span>🎯</span>
+              <span data-i18n="btnRecenter">Recenter Car</span>
+            </button>
+            <button id="btnFitRoute" class="px-3.5 py-2 bg-white/95 backdrop-blur text-gray-800 hover:text-green-700 font-bold text-xs rounded-xl shadow-lg border border-gray-200 flex items-center gap-1.5 transition hover:scale-105">
+              <span>🗺️</span>
+              <span data-i18n="btnFitRoute">Full Route</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Telemetry & Controls & Saarthi AI -->
+        <div class="lg:col-span-5 xl:col-span-4 flex flex-col h-full bg-gray-50/50 overflow-y-auto p-4 space-y-4">
+          
+          <!-- Key Metrics Grid -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5" data-i18n="etaLabel">Estimated Arrival</span>
+              <div class="flex items-baseline gap-1">
+                <span id="trackEtaValue" class="text-xl font-black text-green-700">1h 35m</span>
+                <span class="text-[10px] text-gray-500 font-semibold">(approx)</span>
+              </div>
+              <span id="trackEtaTime" class="text-[11px] text-gray-500 font-medium block mt-0.5">By 02:45 PM</span>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5" data-i18n="distRemainingLabel">Distance Remaining</span>
+              <div class="flex items-baseline gap-1">
+                <span id="trackDistValue" class="text-xl font-black text-gray-900">92</span>
+                <span class="text-xs font-bold text-gray-500">km</span>
+              </div>
+              <span id="trackSpeedValue" class="text-[11px] text-gray-500 font-medium block mt-0.5">Speed: ~65 km/h</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold">
+              <span class="text-gray-500" data-i18n="journeyProgressLabel">Journey Progress</span>
+              <span id="trackProgressPercent" class="text-green-700 font-extrabold">38% Completed</span>
+            </div>
+            <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+              <div id="trackProgressBar" class="bg-green-600 h-2.5 rounded-full transition-all duration-500" style="width: 38%;"></div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-gray-400 font-semibold pt-1">
+              <span id="trackPickupName">Pune (Wakad)</span>
+              <span class="text-green-600 font-bold">● Lonavala</span>
+              <span id="trackDestName">Mumbai (Dadar)</span>
+            </div>
+          </div>
+
+          <!-- Driver & Vehicle Dossier -->
+          <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img id="trackDriverAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80" alt="Driver" class="w-12 h-12 rounded-2xl object-cover border border-gray-200" />
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h4 id="trackDriverName" class="text-sm font-extrabold text-gray-900">Aditya Sharma</h4>
+                    <span class="text-xs font-bold text-amber-500">⭐ 4.9</span>
+                  </div>
+                  <p class="text-[11px] text-gray-500">128 community trips · Verified Driver</p>
+                </div>
+              </div>
+              <span id="trackVehicleBadge" class="text-[10px] font-black px-2.5 py-1 rounded-lg bg-green-100 text-green-800 border border-green-200">
+                ⚡ EV RIDE
+              </span>
+            </div>
+
+            <!-- Vehicle Spec & Trust Badges -->
+            <div class="grid grid-cols-2 gap-2 text-[11px] bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+              <div>
+                <span class="text-gray-400 block text-[9px] uppercase font-bold" data-i18n="vehicleModelLabel">Vehicle</span>
+                <strong id="trackVehicleModel" class="text-gray-800">Tata Nexon EV</strong>
+              </div>
+              <div>
+                <span class="text-gray-400 block text-[9px] uppercase font-bold" data-i18n="vehicleRegLabel">Reg Number</span>
+                <strong class="text-gray-800 font-mono">MH-12-EV-8821</strong>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap text-[10px] text-green-800 font-bold">
+              <span class="bg-green-50 px-2 py-0.5 rounded border border-green-200">🛡️ ID Verified</span>
+              <span class="bg-green-50 px-2 py-0.5 rounded border border-green-200">📱 Phone Verified</span>
+              <span class="bg-green-50 px-2 py-0.5 rounded border border-green-200">🚗 Vehicle Verified</span>
+              <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">📹 Dashcam Active</span>
+            </div>
+          </div>
+
+          <!-- DRIVER CONTROLS (Displayed when Driver Console is selected) -->
+          <div id="driverConsoleCard" class="hidden bg-emerald-50 border border-emerald-200 p-4 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🎛️</span>
+                <span data-i18n="driverConsoleTitle">Driver Controls</span>
+              </span>
+              <span id="driverGpsStatusPill" class="text-[10px] font-bold bg-green-200 text-green-900 px-2 py-0.5 rounded-full">
+                ● GPS Broadcasting
+              </span>
+            </div>
+            <p class="text-xs text-emerald-800 leading-snug" data-i18n="driverConsoleDesc">
+              You are broadcasting live location only to your verified booked passengers. You can pause anytime for personal stops or rest breaks.
+            </p>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <button id="btnDriverPauseLocation" class="px-3 py-2 bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1">
+                <span>⏸️</span>
+                <span id="btnDriverPauseText" data-i18n="btnPauseLocation">Pause Sharing</span>
+              </button>
+              <button id="btnDriverEndTrip" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1">
+                <span>🏁</span>
+                <span data-i18n="btnEndTrip">End Trip</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- PASSENGER PRIVACY NOTICE (Displayed in Passenger View) -->
+          <div id="passengerNoticeCard" class="bg-gray-100/80 p-3 rounded-2xl text-[11px] text-gray-600 flex items-start gap-2">
+            <span class="text-base">🔒</span>
+            <div>
+              <strong class="text-gray-800 block mb-0.5" data-i18n="privacyGuaranteedTitle">Privacy & Safety Protected</strong>
+              <span data-i18n="privacyGuaranteedDesc">Live location is end-to-end isolated for this trip only. Location history is never retained publicly.</span>
+            </div>
+          </div>
+
+          <!-- SAARTHI AI ASSISTANT WIDGET -->
+          <div class="bg-white rounded-2xl border border-gray-200 p-3.5 shadow-sm space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-sm font-bold">
+                  🤖
+                </div>
+                <div>
+                  <h5 class="text-xs font-black text-gray-900" data-i18n="aiMascotTitle">Saarthi AI Travel Assistant</h5>
+                  <span class="text-[9px] text-green-600 font-bold">● Live State Grounded</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI Message Bubble -->
+            <div id="aiResponseBubble" class="bg-green-50/70 border border-green-100 p-2.5 rounded-xl text-xs text-gray-800 font-medium leading-relaxed">
+              👋 Hi! I am your Saarthi Travel Assistant. Ask me anything about your current live ride!
+            </div>
+
+            <!-- Quick Prompt Chips -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button class="ai-prompt-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-700 hover:border-green-300 px-2.5 py-1 rounded-lg border border-gray-200 text-gray-700 font-semibold transition" data-prompt="where" data-i18n="aiPromptWhere">
+                📍 Where is my driver?
+              </button>
+              <button class="ai-prompt-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-700 hover:border-green-300 px-2.5 py-1 rounded-lg border border-gray-200 text-gray-700 font-semibold transition" data-prompt="started" data-i18n="aiPromptStarted">
+                🚗 Has my driver started?
+              </button>
+              <button class="ai-prompt-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-700 hover:border-green-300 px-2.5 py-1 rounded-lg border border-gray-200 text-gray-700 font-semibold transition" data-prompt="distance" data-i18n="aiPromptDistance">
+                📏 How far is the destination?
+              </button>
+              <button class="ai-prompt-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-700 hover:border-green-300 px-2.5 py-1 rounded-lg border border-gray-200 text-gray-700 font-semibold transition" data-prompt="active" data-i18n="aiPromptActive">
+                📡 Is live tracking active?
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SAFETY CENTER MODAL (Share Trip, Safety Info, Report Concern, SOS)
+       ========================================================================= -->
+  <div id="safetyCenterModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden modal-content border border-gray-200 p-6 space-y-5">
+      
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🛡️</span>
+          <div>
+            <h3 class="text-lg font-black text-gray-900" data-i18n="safetyCenterTitle">Saarthi Safety Center</h3>
+            <p class="text-xs text-gray-500 font-medium" data-i18n="safetyCenterSub">Community trust, live sharing, and emergency protocols</p>
+          </div>
+        </div>
+        <button id="btnCloseSafetyCenter" class="text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none">&times;</button>
+      </div>
+
+      <!-- Safety Features Tabs / Sections -->
+      <div class="space-y-4 text-xs">
+        
+        <!-- 1. SHARE TRIP -->
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h4 class="font-black text-gray-900 flex items-center gap-1.5 text-xs uppercase tracking-wider">
+              <span>📤</span>
+              <span data-i18n="shareTripTitle">Share Trip with Loved Ones</span>
+            </h4>
+          </div>
+          <p class="text-gray-600 leading-relaxed text-xs" data-i18n="shareTripDesc">
+            Send an authorized, encrypted tracking link to family or friends so they can monitor your ride in real-time without logging in.
+          </p>
+          <div class="flex items-center gap-2 pt-1">
+            <button id="btnCopyTripLink" class="flex-1 py-2.5 bg-white hover:bg-gray-100 text-gray-800 font-bold rounded-xl border border-gray-200 shadow-sm transition flex items-center justify-center gap-1.5">
+              <span>📋</span>
+              <span data-i18n="btnCopyLink">Copy Tracking Link</span>
+            </button>
+            <button id="btnShareWhatsApp" class="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
+              <span>💬</span>
+              <span data-i18n="btnShareWhatsApp">Share on WhatsApp</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. REPORT SAFETY CONCERN -->
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-2.5">
+          <h4 class="font-black text-gray-900 flex items-center gap-1.5 text-xs uppercase tracking-wider">
+            <span>⚠️</span>
+            <span data-i18n="reportConcernTitle">Report a Safety Concern</span>
+          </h4>
+          <p class="text-gray-600 leading-relaxed text-xs" data-i18n="reportConcernDesc">
+            Your report is immediately routed to our Trust & Safety team for urgent verification.
+          </p>
+          <form id="reportConcernForm" class="space-y-2 pt-1">
+            <select id="concernTypeSelect" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:ring-2 focus:ring-green-500">
+              <option value="reckless_driving">⚠️ Reckless / Overspeeding Driving</option>
+              <option value="route_deviation">🗺️ Unscheduled Route Deviation</option>
+              <option value="inappropriate_behavior">🛑 Inappropriate Behavior / Harassment</option>
+              <option value="vehicle_defect">🚙 Vehicle Safety Issue or Breakdown</option>
+              <option value="other">📝 Other Safety Concern</option>
+            </select>
+            <textarea id="concernNotes" rows="2" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-800 focus:ring-2 focus:ring-green-500" placeholder="Briefly describe what happened..."></textarea>
+            <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow transition" data-i18n="btnSubmitReport">
+              Submit Safety Report
+            </button>
+          </form>
+        </div>
+
+        <!-- 3. EMERGENCY SOS ASSISTANCE -->
+        <div class="bg-red-50 p-4 rounded-2xl border border-red-200 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🚨</span>
+            <div>
+              <h4 class="font-black text-red-900 uppercase tracking-wider text-xs" data-i18n="emergencyAssistanceTitle">Emergency Assistance</h4>
+              <p class="text-[11px] text-red-700" data-i18n="emergencyAssistanceSub">Immediate access to national emergency authorities and Saarthi SOS hotline.</p>
+            </div>
+          </div>
+
+          <button id="btnTriggerSos" class="w-full py-3.5 btn-sos-emergency text-white font-black rounded-xl text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition hover:scale-[1.02]">
+            <span>🚨</span>
+            <span data-i18n="btnTriggerSos">TRIGGER EMERGENCY SOS (112)</span>
+          </button>
+
+          <div class="grid grid-cols-2 gap-2 pt-1 text-center">
+            <a href="tel:112" class="p-2 bg-white text-red-700 font-extrabold rounded-xl border border-red-200 hover:bg-red-100 transition block">
+              📞 Call 112 (National)
+            </a>
+            <a href="tel:1091" class="p-2 bg-white text-red-700 font-extrabold rounded-xl border border-red-200 hover:bg-red-100 transition block">
+              👮 Women Helpline 1091
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SETTINGS & PREFERENCES MODAL (Appearance, Light / Dark Mode, Options)
+       ========================================================================= -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden modal-content border border-gray-200 p-6 space-y-5">
+      
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">⚙️</span>
+          <div>
+            <h3 class="text-lg font-black text-gray-900" data-i18n="settingsTitle">Settings</h3>
+            <p class="text-xs text-gray-500 font-medium" data-i18n="settingsAppearanceSub">Customize platform visuals and preferences</p>
+          </div>
+        </div>
+        <button id="btnCloseSettingsModal" class="text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none cursor-pointer" aria-label="Close Settings">&times;</button>
+      </div>
+
+      <!-- Appearance / Theme Switcher Section -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="text-xs font-black uppercase tracking-wider text-gray-400 flex items-center gap-1.5" data-i18n="settingsAppearanceTitle">
+              <span>🎨</span>
+              <span>Appearance</span>
+            </h4>
+            <p class="text-xs text-gray-600 font-medium mt-0.5" id="settingsCurrentThemeLabel">Light Mode Active</p>
+          </div>
+
+          <!-- Compact Toggle: ☀️ ─── 🌙 -->
+          <button type="button" id="settingsCompactThemeToggleBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-200 hover:bg-gray-300 transition cursor-pointer" title="Toggle Light / Dark Mode" aria-label="Toggle Light and Dark Mode">
+            <span class="text-xs">☀️</span>
+            <span class="w-8 h-4 bg-gray-300 rounded-full relative inline-block transition-colors">
+              <span id="settingsCompactThemeThumb" class="w-3.5 h-3.5 bg-white rounded-full absolute top-0.25 left-0.5 transition-all shadow-xs"></span>
+            </span>
+            <span class="text-xs">🌙</span>
+          </button>
+        </div>
+
+        <!-- Explicit Option Cards for Light and Dark Mode -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Light Mode Option Card -->
+          <button type="button" id="btnSettingsThemeLight" class="theme-choice-card text-left p-3.5 rounded-2xl border-2 transition cursor-pointer bg-white border-green-500 text-gray-900 shadow-sm" data-theme-val="light">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl">☀️</span>
+              <span class="theme-radio-indicator w-4 h-4 rounded-full border-2 border-green-600 bg-green-600 flex items-center justify-center">
+                <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+              </span>
+            </div>
+            <h5 class="text-xs font-black" data-i18n="themeLight">Light Mode</h5>
+            <p class="text-[10px] text-gray-500 mt-0.5 leading-snug" data-i18n="settingsThemeLightDesc">Clean, high-contrast daytime interface</p>
+          </button>
+
+          <!-- Dark Mode Option Card -->
+          <button type="button" id="btnSettingsThemeDark" class="theme-choice-card text-left p-3.5 rounded-2xl border-2 transition cursor-pointer bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300" data-theme-val="dark">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl">🌙</span>
+              <span class="theme-radio-indicator w-4 h-4 rounded-full border-2 border-gray-300 bg-transparent"></span>
+            </div>
+            <h5 class="text-xs font-black" data-i18n="themeDark">Dark Mode</h5>
+            <p class="text-[10px] text-gray-500 mt-0.5 leading-snug" data-i18n="settingsThemeDarkDesc">OLED black theme for night & reduced eye strain</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-gray-100 my-2"></div>
+
+      <!-- Travel Preferences -->
+      <div class="space-y-3">
+        <h4 class="text-xs font-black uppercase tracking-wider text-gray-400 flex items-center gap-1.5" data-i18n="settingsPrefTitle">
+          <span>⚙️</span>
+          <span>Preferences</span>
+        </h4>
+
+        <!-- EV Preference Toggle Row -->
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-50 border border-gray-100">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">⚡</span>
+            <div>
+              <p class="text-xs font-bold text-gray-900" data-i18n="settingsPrefEv">Prefer Electric Vehicles (EV)</p>
+              <p class="text-[10px] text-gray-500" data-i18n="settingsPrefEvSub">Prioritizes zero-emission electric rides</p>
+            </div>
+          </div>
+          <button type="button" id="settingsEvPrefToggleBtn" class="w-10 h-6 bg-green-600 rounded-full relative transition cursor-pointer" aria-label="Toggle EV preference">
+            <span id="settingsEvPrefThumb" class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition shadow-xs"></span>
+          </button>
+        </div>
+
+        <!-- Notifications Preference Toggle Row -->
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-50 border border-gray-100">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">🔔</span>
+            <div>
+              <p class="text-xs font-bold text-gray-900" data-i18n="settingsPrefNotif">Live Trip Notifications</p>
+              <p class="text-[10px] text-gray-500" data-i18n="settingsPrefNotifSub">Real-time alerts for driver arrival and stops</p>
+            </div>
+          </div>
+          <button type="button" id="settingsNotifPrefToggleBtn" class="w-10 h-6 bg-green-600 rounded-full relative transition cursor-pointer" aria-label="Toggle notifications">
+            <span id="settingsNotifPrefThumb" class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition shadow-xs"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action / Close -->
+      <div class="pt-2">
+        <button type="button" id="btnDoneSettingsModal" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-extrabold text-xs rounded-xl shadow-md transition cursor-pointer" data-i18n="btnCloseSettings">
+          Done & Save
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       FLOATING SAARTHI AI ASSISTANT (Bottom-Right Corner)
+       ========================================================================= -->
+  <div id="floatingAiContainer" class="fixed bottom-6 right-6 z-40 flex flex-col items-end">
+    
+    <!-- Interactive Floating Dialog / Drawer -->
+    <div id="floatingAiAssistantPanel" class="hidden mb-3 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 transform scale-95 origin-bottom-right">
+      <!-- Header -->
+      <div class="p-4 bg-gradient-to-r from-green-600 to-emerald-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">🌱🤖</span>
+          <div>
+            <h4 class="text-xs font-black tracking-wide" data-i18n="aiAssistantTitle">Saarthi AI Travel Assistant</h4>
+            <span class="text-[10px] text-green-100 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-300 animate-ping"></span>
+              Online · Smart Travel Intelligence
+            </span>
+          </div>
+        </div>
+        <button id="btnCloseFloatingAi" class="text-white/80 hover:text-white text-xl font-bold p-1 leading-none cursor-pointer" aria-label="Close Assistant">&times;</button>
+      </div>
+
+      <!-- Body / Conversation -->
+      <div class="p-4 max-h-80 overflow-y-auto space-y-3 text-xs">
+        <div id="floatingAiMessageBubble" class="p-3 bg-green-50/80 rounded-2xl border border-green-100 text-gray-800 leading-relaxed font-medium">
+          👋 Namaste! I'm **Saarthi AI**. I can help you find EV rides, compare routes, check safety guidelines, and track live journeys. Tap a quick topic or ask below:
+        </div>
+
+        <!-- Quick Action Chips -->
+        <div class="space-y-1.5">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">What would you like help with?</p>
+          <div class="flex flex-wrap gap-1.5">
+            <button class="floating-ai-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-800 hover:border-green-300 px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 font-semibold transition" data-action="find_rides">
+              🔍 Find EV Rides
+            </button>
+            <button class="floating-ai-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-800 hover:border-green-300 px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 font-semibold transition" data-action="compare_rides">
+              ⚖️ Compare Rides
+            </button>
+            <button class="floating-ai-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-800 hover:border-green-300 px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 font-semibold transition" data-action="location_suggestions">
+              📍 Pickup Points
+            </button>
+            <button class="floating-ai-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-800 hover:border-green-300 px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 font-semibold transition" data-action="safety_info">
+              🛡️ Safety & Verification
+            </button>
+            <button class="floating-ai-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-800 hover:border-green-300 px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 font-semibold transition" data-action="trip_tracking">
+              🛰️ Live Ride Tracking
+            </button>
+            <button class="floating-ai-chip text-[11px] bg-gray-50 hover:bg-green-50 hover:text-green-800 hover:border-green-300 px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 font-semibold transition" data-action="journey_planning">
+              🗺️ Journey Planning
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Form -->
+      <div class="p-3 border-t border-gray-100 bg-gray-50/60">
+        <form id="floatingAiForm" class="flex items-center gap-2">
+          <input type="text" id="floatingAiInput" placeholder="Ask Saarthi AI anything..." class="flex-1 px-3 py-2 bg-white border border-gray-200 focus:border-green-500 rounded-xl text-xs text-gray-800 focus:ring-2 focus:ring-green-500/20 outline-none" autocomplete="off" />
+          <button type="submit" class="px-3.5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shadow-sm transition">
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Collapsed Mascot Pill Button -->
+    <button id="floatingAiMascot" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-full shadow-xl hover:shadow-2xl transition transform hover:scale-105 active:scale-95 group border-2 border-white cursor-pointer" title="Open Saarthi AI Assistant" aria-label="Open Saarthi AI Assistant">
+      <span class="text-xl group-hover:rotate-12 transition-transform">🌱🤖</span>
+      <span class="text-xs font-extrabold tracking-wide" data-i18n="aiMascotPill">Saarthi AI</span>
+      <span class="w-2 h-2 rounded-full bg-green-300 animate-ping ml-0.5"></span>
+    </button>
+  </div>
+
+  <!-- TOAST NOTIFICATION FLOATING CONTAINER -->
+  <div id="toastContainer" class="fixed top-24 right-4 z-50 space-y-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Firebase Authentication & Cloud Firestore Tracking Adapter -->
+  <script src="js/firebase-tracking.js?v=2"></script>
+
+  <!-- Standalone Location Provider Engine -->
+  <script src="js/locations.js?v=2"></script>
+
+  <!-- Core Prototype Engine Script -->
+  <script src="script.js?v=2"></script>
+</body>
+</html>

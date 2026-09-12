@@ -1,0 +1,29 @@
+{
+  "name": "saarthi-ride-tracking",
+  "version": "1.0.0",
+  "description": "Real-time ride tracking, safety center, and socket server for Saarthi carpooling platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "saarthi",
+    "carpooling",
+    "ride-tracking",
+    "socket.io",
+    "gps",
+    "leaflet",
+    "ev"
+  ],
+  "author": "Saarthi Community",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
+}

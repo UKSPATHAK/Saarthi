@@ -1,0 +1,2121 @@
+
+:root {
+  /* Saarthi Standard Theme Variables (Light Mode) */
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-subtle: #F8FAFC;
+  --surface-card: #FFFFFF;
+  --surface-input: #F8FAFC;
+  --surface-dropdown: #FFFFFF;
+  --text: #111827;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --text-placeholder: #9CA3AF;
+  --text-heading: #111827;
+  --text-label: #374151;
+  --text-disabled: #9CA3AF;
+  --border: #E3EAE5;
+  --border-subtle: #F1F5F9;
+  --accent: #16A34A;
+  --accent-hover: #15803D;
+  --accent-light: #DCFCE7;
+
+  /* Legacy & Branding tokens */
+  --primary-green: #16A34A;
+  --dark-green: #14532D;
+  --light-green: #DCFCE7;
+  --very-light-green: #F0FDF4;
+  --bg-main: #F7F9F7;
+  --white: #FFFFFF;
+  --dark-text: #111827;
+  --secondary-text: #66736B;
+  --border-color: #E3EAE5;
+  --ev-accent: #059669;
+  --ev-glow: rgba(22, 163, 74, 0.22);
+  --ev-card-border: #86EFAC;
+}
+
+/* Base Body Styles */
+body {
+  background-color: var(--bg-main);
+  color: var(--dark-text);
+  font-family: 'Poppins', 'Noto Sans Devanagari', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Nirmala UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =============================================================================
+   HINDI & MARATHI (DEVANAGARI) TYPOGRAPHY INTEGRATION
+   Prevents font mixing, baseline shifting, detached matras, and broken shirorekha
+   ============================================================================= */
+:lang(hi), :lang(mr),
+.lang-hi, .lang-mr,
+html[lang="hi"], html[lang="mr"],
+[data-lang="hi"], [data-lang="mr"] {
+  font-family: 'Poppins', 'Noto Sans Devanagari', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Nirmala UI', sans-serif !important;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* Devanagari script requires natural letter-spacing (normal / 0).
+   Tailwind's tracking-wider, tracking-tight, and badge letter-spacing fracture
+   Devanagari conjuncts, vowel matras, and the top connecting bar (shirorekha). */
+:lang(hi) *, :lang(mr) *,
+.lang-hi *, .lang-mr *,
+html[lang="hi"] *, html[lang="mr"] *,
+[data-lang="hi"] *, [data-lang="mr"] * {
+  letter-spacing: normal !important;
+}
+
+/* Comfortable line-height for Devanagari upper & lower diacritics (matras) */
+:lang(hi) h1, :lang(hi) h2, :lang(hi) h3, :lang(hi) h4, :lang(hi) h5, :lang(hi) h6,
+:lang(mr) h1, :lang(mr) h2, :lang(mr) h3, :lang(mr) h4, :lang(mr) h5, :lang(mr) h6,
+.lang-hi h1, .lang-hi h2, .lang-hi h3, .lang-hi h4, .lang-hi h5, .lang-hi h6,
+.lang-mr h1, .lang-mr h2, .lang-mr h3, .lang-mr h4, .lang-mr h5, .lang-mr h6 {
+  font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif !important;
+  line-height: 1.35 !important;
+}
+
+:lang(hi) p, :lang(hi) span, :lang(hi) button, :lang(hi) input, :lang(hi) select,
+:lang(mr) p, :lang(mr) span, :lang(mr) button, :lang(mr) input, :lang(mr) select,
+.lang-hi p, .lang-hi span, .lang-hi button, .lang-hi input, .lang-hi select,
+.lang-mr p, .lang-mr span, .lang-mr button, .lang-mr input, .lang-mr select {
+  font-family: 'Poppins', 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Glassmorphism Header */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Top Nav & Profile Chip Enhancements */
+.user-profile-chip {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.user-profile-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.12);
+}
+.glass-nav nav a {
+  transition: all 0.18s ease;
+}
+.glass-nav nav a:hover {
+  transform: translateY(-1px);
+}
+
+/* EV Ride Card Styling */
+.ev-card-highlight {
+  border: 1.5px solid var(--ev-card-border) !important;
+  background: linear-gradient(180deg, #FAFEFB 0%, #FFFFFF 100%);
+  box-shadow: 0 4px 20px var(--ev-glow);
+  position: relative;
+  transition: all 0.25s ease-in-out;
+}
+
+.ev-card-highlight:hover {
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.28);
+  transform: translateY(-2px);
+}
+
+/* Non-EV Ride Card hover */
+.ride-card-standard {
+  border: 1px solid var(--border-color);
+  background: #FFFFFF;
+  transition: all 0.25s ease-in-out;
+}
+
+.ride-card-standard:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* EV Badge Ribbon */
+.ev-badge-chip {
+  background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+  color: #14532D;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+:lang(hi) .ev-badge-chip, :lang(mr) .ev-badge-chip,
+.lang-hi .ev-badge-chip, .lang-mr .ev-badge-chip {
+  letter-spacing: normal !important;
+}
+
+/* Pulse animation for EV preference indicator */
+@keyframes greenPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(22, 163, 74, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+.pulse-dot {
+  animation: greenPulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Animated EV Toggle Switch */
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #16A34A;
+  background-color: #16A34A;
+}
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #16A34A;
+}
+
+/* Price Range Slider Styling */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  background: transparent;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: #E2E8F0;
+  border-radius: 9999px;
+}
+input[type=range]::-webkit-slider-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #16A34A;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Modal Animations */
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.25s ease-out;
+}
+
+.modal-content {
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+/* Toast Notification Styling */
+.toast-item {
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Bottom Nav on Mobile */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    border-top: 1px solid var(--border-color);
+    z-index: 40;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Vehicle breakdown bar animation */
+.stat-bar-fill {
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Accessibility Focus States */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid #16A34A;
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Signup & Verification Flow Styles
+   ========================================================================== */
+
+/* Multi-Step Stepper */
+.stepper-line {
+  height: 2px;
+  background-color: #E2E8F0;
+  flex: 1;
+  margin: 0 8px;
+  transition: background-color 0.3s ease;
+}
+.stepper-line.active {
+  background-color: #16A34A;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  transition: all 0.25s ease;
+}
+
+/* OTP 6-Digit Inputs */
+.otp-digit {
+  width: 44px;
+  height: 52px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  font-family: monospace;
+  background: #F8FAFC;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+.otp-digit:focus {
+  outline: none;
+  border-color: #16A34A;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+}
+
+/* Upload Dropzone */
+.upload-dropzone {
+  border: 2px dashed #CBD5E1;
+  border-radius: 20px;
+  background: #F8FAFC;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.upload-dropzone:hover, .upload-dropzone.dragover {
+  border-color: #16A34A;
+  background: #F0FDF4;
+}
+
+/* Status Badges */
+.status-pill-pending {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+
+.status-pill-verified {
+  background-color: #DCFCE7;
+  color: #14532D;
+  border: 1px solid #86EFAC;
+}
+
+.status-pill-failed {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+}
+
+/* ==========================================================================
+   Smart Location Autocomplete & Corridors
+   ========================================================================== */
+.autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-height: 290px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+.autocomplete-dropdown::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 6px;
+}
+
+.autocomplete-item {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #F1F5F9;
+  transition: all 0.15s ease;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.active {
+  background-color: #F0FDF4;
+  border-left: 4px solid #16A34A;
+  padding-left: 10px;
+}
+
+.autocomplete-match {
+  font-weight: 800;
+  color: #15803D;
+  background-color: #DCFCE7;
+  padding: 0 2px;
+  border-radius: 4px;
+}
+
+.loc-badge-city {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+}
+
+.loc-badge-locality {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+.loc-badge-popular {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.autocomplete-empty {
+  padding: 16px;
+  text-align: center;
+  color: #64748B;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.recent-searches-header {
+  padding: 8px 14px;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-clear-recent {
+  font-size: 10px;
+  color: #DC2626;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-clear-recent:hover {
+  text-decoration: underline;
+}
+
+.recent-search-item {
+  padding: 9px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 1px solid #F1F5F9;
+}
+.recent-search-item:hover {
+  background-color: #F8FAFC;
+  color: #16A34A;
+}
+
+/* Popular Corridor Live Notification */
+.popular-corridor-banner {
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  border: 1px solid #A7F3D0;
+  border-radius: 16px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+  animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================================================
+   REAL-TIME RIDE TRACKING & LEAFLET MAP STYLES
+   ========================================================================= */
+
+#trackingMap {
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  border-radius: 16px;
+  z-index: 10;
+}
+
+/* Fix Leaflet control layering inside modal */
+.leaflet-pane {
+  z-index: 10 !important;
+}
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 15 !important;
+}
+
+/* Custom Car Marker with Pulse Beacon */
+.driver-car-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.car-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  background: #16A34A;
+  color: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.5);
+  border: 2.5px solid #FFFFFF;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease-out;
+}
+
+.car-icon-wrapper.ev-theme {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3), 0 4px 16px rgba(5, 150, 105, 0.6);
+}
+
+.beacon-pulse-ring {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.35);
+  animation: beacon-pulse 2s infinite cubic-bezier(0.2, 0.8, 0.4, 1);
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes beacon-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Stop Marker Pins */
+.route-stop-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  border: 3px solid #16A34A;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  font-weight: 800;
+  color: #14532D;
+}
+.route-stop-pin.dest {
+  border-color: #DC2626;
+  color: #991B1B;
+}
+
+/* Demo Mode Indicator Strobe */
+.demo-mode-badge {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+  animation: demoStrobe 3s ease-in-out infinite;
+}
+
+@keyframes demoStrobe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.82; }
+}
+
+/* SOS Emergency Button Strobe */
+.btn-sos-emergency {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+  animation: sosStrobe 2.2s infinite;
+}
+
+@keyframes sosStrobe {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+  }
+}
+
+/* Saarthi AI Floating Tracking Mascot */
+.saarthi-ai-badge {
+  background: linear-gradient(135deg, #ECFDF5 0%, #DCFCE7 100%);
+  border: 1.5px solid #86EFAC;
+}
+
+/* Drawer Transitions */
+.drawer-backdrop {
+  background-color: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+/* =============================================================================
+   YOUTUBE-INSPIRED NAVIGATION SYSTEM & SIDEBAR ARCHITECTURE
+   Preserves Saarthi's emerald sustainable branding & glassmorphism
+   ============================================================================= */
+
+/* Main Header */
+#mainHeader {
+  height: 4rem; /* 64px */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #E3EAE5;
+}
+
+/* YouTube-Style Sidebar */
+.youtube-sidebar {
+  top: 4rem;
+  width: 15rem; /* 240px (w-60) */
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+
+.youtube-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.youtube-sidebar::-webkit-scrollbar-thumb {
+  background: #E2E8F0;
+  border-radius: 9999px;
+}
+
+/* Sidebar Item & Active Indicator */
+.sidebar-item {
+  position: relative;
+  transition: all 0.18s ease;
+  border-left: 3px solid transparent;
+  color: #4B5563;
+}
+.sidebar-item:hover {
+  background-color: #F0FDF4;
+  color: #166534;
+}
+.sidebar-item.active {
+  background-color: #F0FDF4;
+  color: #15803D;
+  font-weight: 700;
+  border-left-color: #16A34A;
+}
+.sidebar-item.active .sidebar-icon {
+  transform: scale(1.1);
+}
+
+/* Collapsed Mode (Desktop) */
+.sidebar-collapsed {
+  width: 5rem !important; /* 80px (w-20) */
+}
+.sidebar-collapsed .sidebar-label {
+  display: none !important;
+}
+.sidebar-collapsed .sidebar-footer {
+  display: none !important;
+}
+.sidebar-collapsed .sidebar-item {
+  justify-content: center !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  border-left-width: 0 !important;
+  border-bottom: 3px solid transparent;
+}
+.sidebar-collapsed .sidebar-item.active {
+  border-bottom-color: #16A34A;
+  background-color: #F0FDF4;
+}
+
+/* Tooltip for Collapsed Sidebar Items */
+.sidebar-tooltip {
+  display: none;
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #17221B;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+.sidebar-tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #17221B transparent transparent;
+}
+.sidebar-collapsed .sidebar-item:hover .sidebar-tooltip {
+  display: block;
+  opacity: 1;
+}
+
+/* Profile Dropdown Popover */
+#profileDropdownMenu {
+  transform-origin: top right;
+  animation: dropdownDrop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 12px 36px -4px rgba(22, 163, 74, 0.14), 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+@keyframes dropdownDrop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Quick Action Cards */
+.quick-action-card {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.quick-action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -3px rgba(22, 163, 74, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* Floating AI Mascot & Assistant Panel */
+#floatingAiMascot {
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.35);
+  animation: mascotPulse 3s infinite;
+}
+@keyframes mascotPulse {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(22, 163, 74, 0.35);
+  }
+  50% {
+    box-shadow: 0 8px 28px rgba(22, 163, 74, 0.55);
+  }
+}
+
+#floatingAiAssistantPanel {
+  box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.22), 0 8px 24px -2px rgba(22, 163, 74, 0.15);
+}
+
+/* =============================================================================
+   DARK MODE COLOR PALETTE & ARCHITECTURE (TEXT VISIBILITY & CONTRAST ENGINE)
+   Primary text:       #FFFFFF
+   Secondary text:     #D1D5DB
+   Muted text:         #9CA3AF
+   Placeholder text:   #9CA3AF
+   Headings:           #FFFFFF
+   Links:              Saarthi Accent (#4ADE80 / #22C55E)
+   Labels:             #E5E7EB
+   Disabled text:      #6B7280
+   Ratings:            #FACC15
+   Inputs:             #181818 bg, #FFFFFF text, #9CA3AF placeholder, #2A2A2A border
+   Borders:            #2A2A2A
+   Cards:              #111111
+   Sidebar:            #080808
+   Header:             #000000
+   ============================================================================= */
+
+.dark,
+html.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --surface: #111111;
+  --surface-subtle: #141414;
+  --surface-card: #111111;
+  --surface-input: #181818;
+  --surface-dropdown: #111111;
+  --text: #FFFFFF;
+  --text-primary: #FFFFFF;
+  --text-secondary: #D1D5DB;
+  --text-muted: #9CA3AF;
+  --text-placeholder: #9CA3AF;
+  --text-heading: #FFFFFF;
+  --text-label: #E5E7EB;
+  --text-disabled: #6B7280;
+  --border: #2A2A2A;
+  --border-subtle: #222222;
+  --accent: #22C55E;
+  --accent-hover: #16A34A;
+  --accent-light: #122316;
+
+  /* Backward compatibility tokens */
+  --bg-main: #000000;
+  --bg-sidebar: #080808;
+  --bg-header: #000000;
+  --bg-card: #111111;
+  --bg-input: #181818;
+  --border-color: #2A2A2A;
+  --dark-text: #FFFFFF;
+  --secondary-text: #D1D5DB;
+  --secondary-text-legacy: #AAAAAA;
+  --ev-glow: rgba(34, 197, 94, 0.35);
+  --ev-card-border: #16A34A;
+}
+
+html.dark body {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+/* -----------------------------------------------------------------------------
+   1. GLOBAL TYPOGRAPHY & HEADING HIERARCHY
+   ----------------------------------------------------------------------------- */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #FFFFFF !important;
+}
+
+/* Base paragraphs default to secondary text if not specified */
+html.dark p {
+  color: inherit;
+}
+
+/* Overrides for hard-coded dark text classes (Tailwind utility mapping) */
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-[#17221B],
+html.dark .text-black {
+  color: #FFFFFF !important;
+}
+
+html.dark .text-gray-700,
+html.dark .text-gray-600 {
+  color: #D1D5DB !important;
+}
+
+html.dark .text-gray-500,
+html.dark .text-gray-400,
+html.dark .text-[#66736B] {
+  color: #9CA3AF !important;
+}
+
+html.dark .text-gray-300,
+html.dark :disabled,
+html.dark [disabled] {
+  color: #6B7280 !important;
+}
+
+/* Global Form Labels: #E5E7EB */
+html.dark label,
+html.dark .form-label,
+html.dark form label,
+html.dark label span:not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-red"]),
+html.dark .block.text-\[11px\],
+html.dark .block.text-xs.font-bold,
+html.dark .block.text-xs.font-extrabold {
+  color: #E5E7EB !important;
+}
+
+/* Links: Saarthi Accent */
+html.dark a:not([class*="bg-"]):not(.sidebar-item):not(.quick-action-card):not(.btn-demo-speed):not([href^="tel:"]) {
+  color: #4ADE80 !important;
+}
+html.dark a:not([class*="bg-"]):not(.sidebar-item):not(.quick-action-card):not(.btn-demo-speed):not([href^="tel:"]):hover {
+  color: #86EFAC !important;
+}
+
+/* -----------------------------------------------------------------------------
+   2. INPUTS, TEXTAREAS, SELECTS & PLACEHOLDERS
+   Background: #181818, Text: #FFFFFF, Placeholder: #9CA3AF, Border: #2A2A2A
+   ----------------------------------------------------------------------------- */
+html.dark input[type="text"],
+html.dark input[type="number"],
+html.dark input[type="date"],
+html.dark input[type="time"],
+html.dark input[type="password"],
+html.dark input[type="email"],
+html.dark input[type="tel"],
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
+html.dark select,
+html.dark textarea,
+html.dark .otp-digit,
+html.dark #globalSearchBar,
+html.dark #searchFrom,
+html.dark #searchTo,
+html.dark #searchDate,
+html.dark #searchPassengers,
+html.dark #offerFrom,
+html.dark #offerTo,
+html.dark #offerDate,
+html.dark #offerTime,
+html.dark #offerVehicleType,
+html.dark #offerVehicleModel,
+html.dark #offerSeats,
+html.dark #offerPrice,
+html.dark #offerPickup,
+html.dark #offerDrop,
+html.dark #signupName,
+html.dark #signupMobile,
+html.dark #signupEmail,
+html.dark #signupPassword,
+html.dark #signupConfirmPassword,
+html.dark #concernTypeSelect,
+html.dark #concernNotes,
+html.dark #reviewComments,
+html.dark #floatingAiInput {
+  background-color: #181818 !important;
+  border-color: #2A2A2A !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder,
+html.dark input::-webkit-input-placeholder,
+html.dark textarea::-webkit-input-placeholder,
+html.dark input::-moz-placeholder,
+html.dark textarea::-moz-placeholder,
+html.dark input:-ms-input-placeholder,
+html.dark textarea:-ms-input-placeholder {
+  color: #9CA3AF !important;
+  opacity: 1 !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus,
+html.dark #globalSearchBar:focus,
+html.dark .otp-digit:focus {
+  background-color: #1E1E1E !important;
+  border-color: #22C55E !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25) !important;
+  color: #FFFFFF !important;
+}
+
+html.dark select option {
+  background-color: #181818 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark input[type="range"] {
+  background: #2A2A2A !important;
+}
+
+/* -----------------------------------------------------------------------------
+   3. BUTTONS (PRIMARY & SECONDARY)
+   Primary: Accent (#16A34A), Text #FFFFFF
+   Secondary: #1A1A1A, Text #FFFFFF, Border #333333
+   ----------------------------------------------------------------------------- */
+html.dark .bg-green-600,
+html.dark .bg-emerald-600,
+html.dark #btnSearchRidesSubmit,
+html.dark #btnPostRideSubmit,
+html.dark #btnDoneSettingsModal,
+html.dark #btnSuccessTrackRide,
+html.dark #btnConfirmBookSeat,
+html.dark .btn-view-ride,
+html.dark .btn-track-trip,
+html.dark #btnShareWhatsApp,
+html.dark .btn-find-trips-redirect {
+  background-color: #16A34A !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+}
+
+html.dark .bg-green-600:hover,
+html.dark .bg-emerald-600:hover,
+html.dark #btnSearchRidesSubmit:hover,
+html.dark #btnPostRideSubmit:hover,
+html.dark #btnDoneSettingsModal:hover,
+html.dark #btnSuccessTrackRide:hover,
+html.dark #btnConfirmBookSeat:hover,
+html.dark .btn-view-ride:hover,
+html.dark .btn-track-trip:hover,
+html.dark #btnShareWhatsApp:hover,
+html.dark .btn-find-trips-redirect:hover {
+  background-color: #15803D !important;
+  color: #FFFFFF !important;
+}
+
+/* Secondary Buttons */
+html.dark .btn-secondary,
+html.dark #btnSwapCities,
+html.dark #btnModalCloseSecondary,
+html.dark #btnSuccessViewTrips,
+html.dark #btnSuccessClose,
+html.dark #btnCopyTripLink,
+html.dark #btnChangeDoc,
+html.dark #btnChooseIdFile,
+html.dark #btnRecenterDriver,
+html.dark #btnFitRoute,
+html.dark #btnCancelBooking,
+html.dark .btn-cancel-trip {
+  background-color: #1A1A1A !important;
+  color: #FFFFFF !important;
+  border: 1px solid #333333 !important;
+}
+
+html.dark .btn-secondary:hover,
+html.dark #btnSwapCities:hover,
+html.dark #btnModalCloseSecondary:hover,
+html.dark #btnSuccessViewTrips:hover,
+html.dark #btnSuccessClose:hover,
+html.dark #btnCopyTripLink:hover,
+html.dark #btnChangeDoc:hover,
+html.dark #btnChooseIdFile:hover,
+html.dark #btnRecenterDriver:hover,
+html.dark #btnFitRoute:hover {
+  background-color: #262626 !important;
+  color: #FFFFFF !important;
+  border-color: #444444 !important;
+}
+
+html.dark .btn-cancel-trip:hover {
+  background-color: #350A0A !important;
+  color: #FCA5A5 !important;
+  border-color: #7F1D1D !important;
+}
+
+/* Close & Dismiss Buttons */
+html.dark button[id^="btnClose"],
+html.dark .text-gray-400.hover\:text-gray-700 {
+  color: #9CA3AF !important;
+}
+html.dark button[id^="btnClose"]:hover,
+html.dark .text-gray-400.hover\:text-gray-700:hover {
+  color: #FFFFFF !important;
+}
+
+/* -----------------------------------------------------------------------------
+   4. SIDEBAR NAVIGATION
+   Normal item: #D1D5DB, Active item: #FFFFFF + Accent icon, Hover: #FFFFFF, Muted: #9CA3AF
+   ----------------------------------------------------------------------------- */
+html.dark #mainSidebar {
+  background-color: #080808 !important;
+  border-right-color: #2A2A2A !important;
+}
+
+html.dark .sidebar-item {
+  color: #D1D5DB !important;
+  background-color: transparent !important;
+  border-left-color: transparent !important;
+}
+
+html.dark .sidebar-item:hover {
+  background-color: #141414 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .sidebar-item.active {
+  background-color: #122316 !important;
+  color: #FFFFFF !important;
+  border-left-color: #22C55E !important;
+  border-color: #16A34A !important;
+}
+
+html.dark .sidebar-item.active .sidebar-icon {
+  color: #22C55E !important;
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.6));
+}
+
+html.dark .sidebar-divider {
+  border-top-color: #2A2A2A !important;
+}
+
+html.dark .sidebar-divider-title,
+html.dark .sidebar-footer,
+html.dark #sidebarVersionLabel,
+html.dark .sidebar-muted-item {
+  color: #9CA3AF !important;
+  border-top-color: #2A2A2A !important;
+}
+
+html.dark .sidebar-tooltip {
+  background-color: #1F2937 !important;
+  color: #FFFFFF !important;
+  border-color: #374151 !important;
+}
+html.dark .sidebar-tooltip::after {
+  border-color: transparent #1F2937 transparent transparent !important;
+}
+
+/* -----------------------------------------------------------------------------
+   5. HEADER & TOP NAV
+   ----------------------------------------------------------------------------- */
+html.dark #mainHeader {
+  background-color: rgba(0, 0, 0, 0.95) !important;
+  border-bottom-color: #2A2A2A !important;
+}
+
+html.dark #headerThemeToggleBtn,
+html.dark #langDropdownBtn,
+html.dark #notifBtn,
+html.dark #headerProfileBtn,
+html.dark #sidebarToggleBtn {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #headerThemeToggleBtn:hover,
+html.dark #langDropdownBtn:hover,
+html.dark #notifBtn:hover,
+html.dark #headerProfileBtn:hover,
+html.dark #sidebarToggleBtn:hover {
+  background-color: #181818 !important;
+  border-color: #383838 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #headerIdentityBadge {
+  background-color: #062814 !important;
+  color: #86EFAC !important;
+  border-color: #14532D !important;
+}
+
+/* -----------------------------------------------------------------------------
+   6. RIDE CARDS
+   Driver name: #FFFFFF, Route: #FFFFFF, Date/time: #D1D5DB, Price: #FFFFFF,
+   Rating: #FACC15, Secondary info: #9CA3AF
+   ----------------------------------------------------------------------------- */
+html.dark .ride-card-standard {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark .ride-card-standard:hover {
+  border-color: #3B3B3B !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8) !important;
+}
+
+html.dark .ev-card-highlight {
+  background: linear-gradient(180deg, #102115 0%, #111111 100%) !important;
+  border-color: #16A34A !important;
+  box-shadow: 0 4px 22px rgba(22, 163, 74, 0.25) !important;
+}
+
+html.dark .ev-card-highlight:hover {
+  border-color: #22C55E !important;
+  box-shadow: 0 10px 30px rgba(22, 163, 74, 0.4) !important;
+}
+
+/* Ride card text elements */
+html.dark [id^="ride-card-"] h4,
+html.dark .ride-card-standard h4,
+html.dark .ev-card-highlight h4,
+html.dark [id^="ride-card-"] .text-lg.font-extrabold {
+  color: #FFFFFF !important;
+}
+
+html.dark [id^="ride-card-"] .text-2xl.font-black {
+  color: #FFFFFF !important;
+}
+
+html.dark [id^="ride-card-"] .text-sm.text-gray-500,
+html.dark [id^="ride-card-"] .text-xs.text-gray-600 {
+  color: #D1D5DB !important;
+}
+
+html.dark [id^="ride-card-"] .text-xs.text-gray-400,
+html.dark [id^="ride-card-"] .text-gray-400,
+html.dark [id^="ride-card-"] .truncate span {
+  color: #9CA3AF !important;
+}
+html.dark [id^="ride-card-"] .truncate strong {
+  color: #FFFFFF !important;
+}
+
+/* Rating badge & Stars: #FACC15 */
+html.dark [id^="ride-card-"] .bg-amber-50,
+html.dark .ride-card-standard .bg-amber-50,
+html.dark .ev-card-highlight .bg-amber-50,
+html.dark #driverRatingModal .text-amber-400 {
+  background-color: #241400 !important;
+  border-color: #78350F !important;
+  color: #FACC15 !important;
+}
+
+/* Ride card localities container */
+html.dark [id^="ride-card-"] .bg-gray-50 {
+  background-color: #181818 !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark [id^="ride-card-"] .bg-gray-100 {
+  background-color: #222222 !important;
+  color: #D1D5DB !important;
+  border-color: #2A2A2A !important;
+}
+
+/* Divider inside ride card */
+html.dark [id^="ride-card-"] .border-gray-100,
+html.dark [id^="ride-card-"] .border-gray-200 {
+  border-color: #2A2A2A !important;
+}
+
+/* -----------------------------------------------------------------------------
+   7. VEHICLE BADGES & EMISSION TAGS
+   ----------------------------------------------------------------------------- */
+html.dark .ev-badge-chip {
+  background: #0E2916 !important;
+  color: #4ADE80 !important;
+  border: 1px solid #16A34A !important;
+}
+
+html.dark .bg-teal-100 {
+  background-color: #042F2E !important;
+  border-color: #115E59 !important;
+}
+html.dark .text-teal-900,
+html.dark .text-teal-800,
+html.dark .text-teal-700 {
+  color: #5EEAD4 !important;
+}
+
+html.dark .bg-emerald-100,
+html.dark .bg-emerald-50 {
+  background-color: #064E3B !important;
+  border-color: #047857 !important;
+}
+html.dark .text-emerald-900,
+html.dark .text-emerald-950,
+html.dark .text-emerald-800,
+html.dark .text-emerald-700 {
+  color: #6EE7B7 !important;
+}
+
+html.dark .bg-amber-100,
+html.dark .bg-amber-50 {
+  background-color: #451A03 !important;
+  border-color: #78350F !important;
+}
+html.dark .text-amber-900,
+html.dark .text-amber-800 {
+  color: #FCD34D !important;
+}
+
+html.dark .bg-blue-100,
+html.dark .bg-blue-50 {
+  background-color: #172554 !important;
+  border-color: #1E40AF !important;
+}
+html.dark .text-blue-900,
+html.dark .text-blue-800,
+html.dark .text-blue-700 {
+  color: #93C5FD !important;
+}
+
+html.dark .bg-green-100,
+html.dark .bg-green-50 {
+  background-color: #052E16 !important;
+  border-color: #14532D !important;
+}
+html.dark .text-green-900,
+html.dark .text-green-800 {
+  color: #86EFAC !important;
+}
+html.dark .text-green-700,
+html.dark .text-green-600 {
+  color: #4ADE80 !important;
+}
+
+/* -----------------------------------------------------------------------------
+   8. DARK DROPDOWNS & AUTOCOMPLETE
+   Dropdown: #111111, Text: #FFFFFF, Secondary text: #A3A3A3, Hover: #222222, Border: #2A2A2A
+   ----------------------------------------------------------------------------- */
+html.dark .autocomplete-dropdown,
+html.dark .location-dropdown-menu,
+html.dark #profileDropdownMenu,
+html.dark #langDropdownMenu,
+html.dark #notifDropdown {
+  background-color: #111111 !important;
+  border: 1px solid #2A2A2A !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.95), 0 8px 16px -6px rgba(0, 0, 0, 0.95) !important;
+}
+
+html.dark .autocomplete-item,
+html.dark .location-suggestion-item {
+  background-color: #111111 !important;
+  color: #FFFFFF !important;
+  border-bottom: 1px solid #222222 !important;
+}
+
+html.dark .autocomplete-item:hover,
+html.dark .autocomplete-item.active,
+html.dark .location-suggestion-item:hover,
+html.dark .location-suggestion-item.active {
+  background-color: #222222 !important;
+  border-left-color: #22C55E !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .loc-item-name {
+  color: #FFFFFF !important;
+}
+
+html.dark .loc-item-sub {
+  color: #A3A3A3 !important;
+}
+
+html.dark .autocomplete-match {
+  color: #4ADE80 !important;
+  background-color: #0F2D17 !important;
+}
+
+html.dark .recent-searches-header {
+  background-color: #141414 !important;
+  border-bottom-color: #2A2A2A !important;
+  color: #A3A3A3 !important;
+}
+
+html.dark .recent-search-item {
+  color: #FFFFFF !important;
+  border-bottom-color: #222222 !important;
+}
+
+html.dark .recent-search-item:hover {
+  background-color: #222222 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .loc-badge-locality {
+  background-color: #1C1C1C !important;
+  color: #A3A3A3 !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark .loc-badge-city {
+  background-color: #082F49 !important;
+  color: #38BDF8 !important;
+  border-color: #0369A1 !important;
+}
+
+html.dark .loc-badge-popular {
+  background-color: #451A03 !important;
+  color: #FCD34D !important;
+  border-color: #78350F !important;
+}
+
+html.dark .autocomplete-empty {
+  color: #9CA3AF !important;
+}
+
+/* -----------------------------------------------------------------------------
+   9. PROFILE MENU & LANGUAGE MENU
+   ----------------------------------------------------------------------------- */
+html.dark #profileDropdownMenu .text-gray-900,
+html.dark #profileDropdownMenu .text-gray-800,
+html.dark #profileDropdownMenu button,
+html.dark #profileDropdownMenu a {
+  color: #FFFFFF !important;
+}
+
+html.dark #profileDropdownMenu .text-gray-500,
+html.dark #profileDropdownMenu .text-gray-400 {
+  color: #9CA3AF !important;
+}
+
+html.dark #profileDropdownMenu button:hover,
+html.dark #profileDropdownMenu a:hover {
+  background-color: #222222 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .lang-option {
+  color: #D1D5DB !important;
+}
+
+html.dark .lang-option:hover {
+  background-color: #222222 !important;
+  color: #4ADE80 !important;
+}
+
+/* -----------------------------------------------------------------------------
+   10. NOTIFICATIONS DROPDOWN
+   ----------------------------------------------------------------------------- */
+html.dark #notifDropdown .notif-item {
+  border-bottom-color: #222222 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #notifDropdown .notif-item:hover {
+  background-color: #222222 !important;
+}
+
+html.dark #notifDropdown .bg-green-50\/60 {
+  background-color: #0A2914 !important;
+  border-color: #14532D !important;
+}
+
+html.dark #notifDropdown .text-green-900 {
+  color: #86EFAC !important;
+}
+
+html.dark #notifDropdown .bg-gray-50 {
+  background-color: #181818 !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark #notifDropdown .text-gray-900 {
+  color: #FFFFFF !important;
+}
+
+html.dark #notifDropdown .text-gray-600 {
+  color: #D1D5DB !important;
+}
+
+/* -----------------------------------------------------------------------------
+   11. ALL MODALS (SETTINGS, PROFILE, TRACKING, DETAILS, SAFETY, SIGNUP, RATING, SUCCESS)
+   ----------------------------------------------------------------------------- */
+html.dark .modal-content,
+html.dark #settingsModal .modal-content,
+html.dark #profileModal .modal-content,
+html.dark #rideDetailsModal .modal-content,
+html.dark #rideTrackingModal .modal-content,
+html.dark #safetyCenterModal .modal-content,
+html.dark #signupModal .modal-content,
+html.dark #driverRatingModal .modal-content,
+html.dark #bookingSuccessModal .modal-content {
+  background-color: #111111 !important;
+  color: #FFFFFF !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark .modal-content .bg-white,
+html.dark #settingsModal .bg-white,
+html.dark #profileModal .bg-white,
+html.dark #rideDetailsModal .bg-white,
+html.dark #rideTrackingModal .bg-white,
+html.dark #safetyCenterModal .bg-white,
+html.dark #signupModal .bg-white,
+html.dark #driverRatingModal .bg-white,
+html.dark #bookingSuccessModal .bg-white {
+  background-color: #111111 !important;
+  color: #FFFFFF !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark .modal-content .bg-gray-50 {
+  background-color: #181818 !important;
+  color: #FFFFFF !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark .modal-content .bg-gray-100 {
+  background-color: #222222 !important;
+  color: #FFFFFF !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark .modal-content h1,
+html.dark .modal-content h2,
+html.dark .modal-content h3,
+html.dark .modal-content h4,
+html.dark .modal-content h5 {
+  color: #FFFFFF !important;
+}
+
+html.dark .modal-content p {
+  color: #D1D5DB;
+}
+
+html.dark .modal-content .text-gray-500,
+html.dark .modal-content .text-gray-400 {
+  color: #9CA3AF !important;
+}
+
+html.dark .modal-content .text-gray-900,
+html.dark .modal-content .text-gray-800 {
+  color: #FFFFFF !important;
+}
+
+html.dark .modal-content .text-gray-700,
+html.dark .modal-content .text-gray-600 {
+  color: #D1D5DB !important;
+}
+
+/* -----------------------------------------------------------------------------
+   12. SETTINGS MODAL & THEME TOGGLE
+   ----------------------------------------------------------------------------- */
+html.dark .theme-choice-card {
+  background-color: #141414 !important;
+  border-color: #2A2A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .theme-choice-card h5 {
+  color: #FFFFFF !important;
+}
+
+html.dark .theme-choice-card p {
+  color: #9CA3AF !important;
+}
+
+html.dark .theme-choice-card:hover {
+  border-color: #383838 !important;
+}
+
+html.dark .theme-choice-card.active {
+  background-color: #0E2916 !important;
+  border-color: #22C55E !important;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.25) !important;
+}
+
+html.dark #settingsCurrentThemeLabel {
+  color: #86EFAC !important;
+}
+
+html.dark #settingsCompactThemeToggleBtn,
+html.dark #compactThemeToggleBtn {
+  background-color: #1A1A1A !important;
+  border: 1px solid #2A2A2A !important;
+}
+
+/* -----------------------------------------------------------------------------
+   13. SAFETY CENTER & EMERGENCY SOS
+   ----------------------------------------------------------------------------- */
+html.dark #safetyCenterModal .bg-red-50 {
+  background-color: #2A0E0E !important;
+  border-color: #5C1D1D !important;
+}
+
+html.dark #safetyCenterModal .text-red-900 {
+  color: #FCA5A5 !important;
+}
+
+html.dark #safetyCenterModal .text-red-700 {
+  color: #F87171 !important;
+}
+
+html.dark #safetyCenterModal a[href^="tel:"] {
+  background-color: #1A1A1A !important;
+  color: #FCA5A5 !important;
+  border-color: #5C1D1D !important;
+}
+
+html.dark #safetyCenterModal a[href^="tel:"]:hover {
+  background-color: #331111 !important;
+  color: #FFFFFF !important;
+}
+
+/* -----------------------------------------------------------------------------
+   14. LIVE TRACKING MODAL & TELEMETRY
+   ----------------------------------------------------------------------------- */
+html.dark #rideTrackingModal .bg-gray-50\/50 {
+  background-color: #0A0A0A !important;
+}
+
+html.dark #trackModeBadge {
+  background-color: #2A1800 !important;
+  color: #FCD34D !important;
+  border-color: #78350F !important;
+}
+
+html.dark #demoSpeedControls {
+  background-color: #181818 !important;
+  color: #D1D5DB !important;
+}
+
+html.dark .btn-demo-speed {
+  color: #9CA3AF !important;
+}
+
+html.dark .btn-demo-speed.bg-white {
+  background-color: #22C55E !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #driverConsoleCard {
+  background-color: #092613 !important;
+  border-color: #14532D !important;
+}
+
+html.dark #driverConsoleCard .text-emerald-900 {
+  color: #86EFAC !important;
+}
+
+html.dark #driverConsoleCard .text-emerald-800 {
+  color: #D1FAE5 !important;
+}
+
+html.dark #btnDriverPauseLocation {
+  background-color: #1A1A1A !important;
+  color: #FCD34D !important;
+  border-color: #78350F !important;
+}
+
+html.dark #driverGpsStatusPill {
+  background-color: #052E16 !important;
+  color: #86EFAC !important;
+  border: 1px solid #14532D !important;
+}
+
+html.dark #passengerNoticeCard {
+  background-color: #181818 !important;
+  color: #D1D5DB !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark .leaflet-container {
+  background: #080808 !important;
+}
+
+html.dark .leaflet-tile-pane {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+html.dark .leaflet-popup-content-wrapper,
+html.dark .leaflet-popup-tip {
+  background: #181818 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #2A2A2A !important;
+}
+
+/* -----------------------------------------------------------------------------
+   15. SAARTHI AI ASSISTANT & CHAT
+   ----------------------------------------------------------------------------- */
+html.dark #floatingAiAssistantPanel {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+  box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.95), 0 8px 24px -2px rgba(22, 163, 74, 0.25) !important;
+}
+
+html.dark #floatingAiMessageBubble {
+  background-color: #122316 !important;
+  border-color: #1B3F24 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #floatingAiMessageBubble strong {
+  color: #4ADE80 !important;
+}
+
+html.dark #floatingAiMessageBubble em {
+  color: #D1D5DB !important;
+}
+
+html.dark .floating-ai-chip {
+  background-color: #181818 !important;
+  border-color: #2A2A2A !important;
+  color: #D1D5DB !important;
+}
+
+html.dark .floating-ai-chip:hover {
+  background-color: #14281A !important;
+  border-color: #16A34A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #floatingAiAssistantPanel .bg-gray-50\/60 {
+  background-color: #141414 !important;
+  border-color: #2A2A2A !important;
+}
+
+/* -----------------------------------------------------------------------------
+   16. LOGIN / SIGNUP & GOVERNMENT ID VERIFICATION
+   ----------------------------------------------------------------------------- */
+html.dark #signupModal .from-green-50\/70 {
+  background: #141414 !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark #signupModal .step-circle.bg-gray-200 {
+  background-color: #262626 !important;
+  color: #9CA3AF !important;
+}
+
+html.dark #signupModal .stepper-line {
+  background-color: #2A2A2A !important;
+}
+
+html.dark #signupModal .stepper-line.active {
+  background-color: #16A34A !important;
+}
+
+html.dark #signupModal label.bg-gray-50 {
+  background-color: #181818 !important;
+  border-color: #2A2A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #signupModal label.bg-gray-50:hover {
+  background-color: #222222 !important;
+}
+
+html.dark #signupModal .upload-dropzone {
+  border-color: #2A2A2A !important;
+  background: #141414 !important;
+}
+
+html.dark #signupModal .upload-dropzone:hover,
+html.dark #signupModal .upload-dropzone.dragover {
+  border-color: #16A34A !important;
+  background: #0E2916 !important;
+}
+
+html.dark #signupModal .bg-amber-50 {
+  background-color: #2B1700 !important;
+  border-color: #78350F !important;
+  color: #FDE68A !important;
+}
+
+html.dark #statusPendingCard .bg-amber-100 {
+  background-color: #381E02 !important;
+  color: #FCD34D !important;
+}
+
+html.dark .status-pill-pending {
+  background-color: #451A03 !important;
+  color: #FCD34D !important;
+  border-color: #78350F !important;
+}
+
+html.dark .status-pill-verified {
+  background-color: #052E16 !important;
+  color: #86EFAC !important;
+  border-color: #14532D !important;
+}
+
+html.dark .status-pill-failed {
+  background-color: #450A0A !important;
+  color: #FCA5A5 !important;
+  border-color: #7F1D1D !important;
+}
+
+/* -----------------------------------------------------------------------------
+   17. SUSTAINABILITY STATISTICS & MY IMPACT
+   ----------------------------------------------------------------------------- */
+html.dark #myImpactSection {
+  background: linear-gradient(180deg, #000000 0%, #06170B 100%) !important;
+}
+
+html.dark #myImpactSection .bg-white {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #myImpactSection .bg-gradient-to-b.from-green-50\/50,
+html.dark #myImpactSection .bg-gradient-to-b.from-emerald-50\/50 {
+  background: #092112 !important;
+  border-color: #14532D !important;
+}
+
+html.dark #compactImpactSection {
+  background: linear-gradient(135deg, #111111 0%, #081C0F 100%) !important;
+  border-color: #1B4326 !important;
+}
+
+html.dark #compactImpactSection .bg-white {
+  background-color: #161616 !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark #compactImpactSection .bg-green-50\/30,
+html.dark #compactImpactSection .bg-emerald-50\/50 {
+  background-color: #0A2414 !important;
+  border-color: #16532B !important;
+}
+
+html.dark #myImpactSection .bg-gray-100 {
+  background-color: #222222 !important;
+}
+
+/* -----------------------------------------------------------------------------
+   18. GENERAL CARDS, BANNERS & SECTIONS
+   ----------------------------------------------------------------------------- */
+html.dark .bg-white {
+  background-color: #111111 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .bg-gray-50 {
+  background-color: #141414 !important;
+}
+
+html.dark .bg-gray-100 {
+  background-color: #1A1A1A !important;
+}
+
+html.dark .bg-gray-200 {
+  background-color: #2A2A2A !important;
+}
+
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300,
+html.dark .border-gray-200\/80 {
+  border-color: #2A2A2A !important;
+}
+
+html.dark .divide-gray-100 > * + *,
+html.dark .divide-gray-200 > * + * {
+  border-color: #2A2A2A !important;
+}
+
+/* Hero Section */
+html.dark #heroSection {
+  background-color: #080808 !important;
+  border-color: #2A2A2A !important;
+}
+
+/* Quick Action Cards */
+html.dark .quick-action-card {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .quick-action-card:hover {
+  background-color: #161616 !important;
+  border-color: #16A34A !important;
+  box-shadow: 0 10px 24px -3px rgba(0, 0, 0, 0.8), 0 0 15px rgba(22, 163, 74, 0.25) !important;
+}
+
+html.dark .quick-action-card h4 {
+  color: #FFFFFF !important;
+}
+
+html.dark .quick-action-card p {
+  color: #9CA3AF !important;
+}
+
+/* Popular Corridor Banner & Route Chips */
+html.dark .popular-corridor-banner {
+  background: linear-gradient(90deg, #0A1E11 0%, #111111 100%) !important;
+  border-color: #1B4326 !important;
+}
+
+html.dark #popularRouteBanner .text-green-900 {
+  color: #86EFAC !important;
+}
+html.dark #popularRouteBanner .text-green-800 {
+  color: #BBF7D0 !important;
+}
+html.dark #popularRouteBanner .bg-green-200\/80 {
+  background-color: #14532D !important;
+}
+html.dark #popularRouteBanner .bg-white {
+  background-color: #181818 !important;
+  color: #4ADE80 !important;
+  border-color: #2A2A2A !important;
+}
+
+html.dark .popular-route-chip {
+  background-color: #141414 !important;
+  border-color: #2A2A2A !important;
+  color: #D1D5DB !important;
+}
+
+html.dark .popular-route-chip:hover {
+  background-color: #122316 !important;
+  border-color: #16A34A !important;
+  color: #4ADE80 !important;
+}
+
+/* EV Preference Banner */
+html.dark #dashboardSection .from-\[\#F0FDF4\] {
+  background: linear-gradient(90deg, #0E2315 0%, #111111 100%) !important;
+  border-color: #1A4D29 !important;
+}
+html.dark #evPrefBannerNote {
+  color: #86EFAC !important;
+}
+html.dark #evToggleStatusText {
+  background-color: #14532D !important;
+  color: #4ADE80 !important;
+}
+
+/* Offer a ride section */
+html.dark #offerRideSection {
+  background-color: #000000 !important;
+}
+
+/* Results section filter box */
+html.dark #resultsSection aside .bg-white {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+}
+
+/* Community cards */
+html.dark #communitySection .bg-gray-50 {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+}
+html.dark #communitySection h3 {
+  color: #FFFFFF !important;
+}
+html.dark #communitySection p {
+  color: #9CA3AF !important;
+}
+
+/* -----------------------------------------------------------------------------
+   19. FOOTER
+   ----------------------------------------------------------------------------- */
+html.dark footer {
+  background-color: #080808 !important;
+  border-top-color: #2A2A2A !important;
+  color: #9CA3AF !important;
+}
+
+html.dark footer .text-\[\#17221B\] {
+  color: #FFFFFF !important;
+}
+
+html.dark footer .text-\[\#66736B\] {
+  color: #9CA3AF !important;
+}
+
+html.dark footer a {
+  color: #D1D5DB !important;
+}
+
+html.dark footer a:hover {
+  color: #4ADE80 !important;
+}
+
+html.dark footer p {
+  color: #9CA3AF !important;
+}
+
+/* Mobile Bottom Nav in Dark Mode */
+html.dark .mobile-bottom-nav {
+  background-color: #080808 !important;
+  border-top-color: #2A2A2A !important;
+}
+html.dark .mobile-bottom-nav a {
+  color: #D1D5DB !important;
+}
+html.dark .mobile-bottom-nav a:hover {
+  color: #4ADE80 !important;
+}
+
+/* -----------------------------------------------------------------------------
+   20. CUSTOM SCROLLBAR IN DARK MODE
+   ----------------------------------------------------------------------------- */
+html.dark ::-webkit-scrollbar-track {
+  background: #080808;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2A2A2A;
+  border-radius: 9999px;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+/* Smooth Theme Switching Transitions */
+body, #mainHeader, #mainSidebar, #mainContentWrapper,
+.bg-white, .quick-action-card, input, select, textarea,
+.sidebar-item, .modal-content, .autocomplete-dropdown {
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.18s ease;
+}
+
+/* =============================================================================
+   21. AUTHENTICATION & LOGOUT MODALS (LIGHT & DARK MODE STYLING)
+   ============================================================================= */
+@keyframes scaleUpModal {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-scale-up {
+  animation: scaleUpModal 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Guest Auth Buttons in Top Header */
+#headerGuestAuthContainer button {
+  white-space: nowrap;
+}
+
+/* Sign In & Logout Confirmation Dialogs - Dark Mode */
+html.dark #signInModal .modal-content,
+html.dark #logoutConfirmModal .modal-content {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85) !important;
+}
+
+html.dark #signInModal h3,
+html.dark #logoutConfirmModal h3 {
+  color: #FFFFFF !important;
+}
+
+html.dark #signInModal p,
+html.dark #logoutConfirmModal p {
+  color: #D1D5DB !important;
+}
+
+html.dark #signInModal label {
+  color: #E5E7EB !important;
+}
+
+html.dark #signInModal input[type="text"],
+html.dark #signInModal input[type="password"] {
+  background-color: #181818 !important;
+  border-color: #2A2A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #signInModal input[type="text"]:focus,
+html.dark #signInModal input[type="password"]:focus {
+  border-color: #22C55E !important;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25) !important;
+  background-color: #202020 !important;
+}
+
+html.dark #signInModal .border-t,
+html.dark #logoutConfirmModal .border-t {
+  border-color: #2A2A2A !important;
+}
+
+html.dark #btnCancelLogout {
+  background-color: #222222 !important;
+  border: 1px solid #333333 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #btnCancelLogout:hover {
+  background-color: #2C2C2C !important;
+  border-color: #444444 !important;
+}
+
+html.dark #headerGuestAuthContainer #btnHeaderSignIn {
+  background-color: #111111 !important;
+  border-color: #2A2A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #headerGuestAuthContainer #btnHeaderSignIn:hover {
+  background-color: #1A1A1A !important;
+  border-color: #22C55E !important;
+  color: #4ADE80 !important;
+}
+
+html.dark #headerGuestAuthContainer #btnHeaderSignUp {
+  background-color: #16A34A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark #headerGuestAuthContainer #btnHeaderSignUp:hover {
+  background-color: #15803D !important;
+}
+
+html.dark #btnForgotPassword,
+html.dark #btnSwitchToSignUp,
+html.dark #btnSwitchToSignIn {
+  color: #4ADE80 !important;
+}
+
+html.dark #btnForgotPassword:hover,
+html.dark #btnSwitchToSignUp:hover,
+html.dark #btnSwitchToSignIn:hover {
+  color: #86EFAC !important;
+}
+
+
+
+
+
+
+
